@@ -20,10 +20,13 @@ import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn'
 import PendingActionsIcon from '@mui/icons-material/PendingActions'
 import GroupIcon from '@mui/icons-material/Group'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+import AddIcon from '@mui/icons-material/Add'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useApiClient } from '../lib/apiClient'
-import type { Team, Project, SuggestTodayResponse, TeamMember, Task } from '../types'
+import { TeamCreateDialog } from '../components/teams/TeamCreateDialog'
+import { ProjectCreateDialog } from '../components/projects/ProjectCreateDialog'
+import type { Team, Project, SuggestTodayResponse, TeamMember, Task, Me } from '../types'
 
 const STATUS_COLORS: Record<string, string> = {
   pending: '#CBD5E1',
@@ -100,6 +103,18 @@ export const DashboardPage: React.FC = () => {
   const api = useApiClient()
   const navigate = useNavigate()
   const [selectedTeamId, setSelectedTeamId] = React.useState<number | null>(null)
+  const [teamDialogOpen, setTeamDialogOpen] = React.useState(false)
+  const [projectDialogOpen, setProjectDialogOpen] = React.useState(false)
+
+  const { data: me } = useQuery<Me>({
+    queryKey: ['me'],
+    queryFn: async () => {
+      const res = await api.get('/auth/me/')
+      return res.data
+    },
+    staleTime: 1000 * 60 * 5,
+  })
+  const isAdmin = !!me?.is_admin
 
   const { data: teams, isLoading: teamsLoading } = useQuery<Team[]>({
     queryKey: ['teams'],
@@ -208,12 +223,30 @@ export const DashboardPage: React.FC = () => {
           borderBottom: '1px solid rgba(15,23,42,0.07)',
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>
-          ダッシュボード
-        </Typography>
-        <Typography sx={{ color: '#64748B', fontSize: 14, mt: 0.25 }}>
-          チームのタスク進捗と一覧を確認
-        </Typography>
+        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={2}>
+          <Box>
+            <Typography variant="h5" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>
+              ダッシュボード
+            </Typography>
+            <Typography sx={{ color: '#64748B', fontSize: 14, mt: 0.25 }}>
+              チームのタスク進捗と一覧を確認
+            </Typography>
+          </Box>
+          {isAdmin && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setTeamDialogOpen(true)}
+              sx={{
+                background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+                boxShadow: '0 2px 8px rgba(79,70,229,0.35)',
+                flexShrink: 0,
+              }}
+            >
+              チーム作成
+            </Button>
+          )}
+        </Stack>
 
         {/* Team tabs */}
         {teamList.length > 0 && (
@@ -429,14 +462,26 @@ export const DashboardPage: React.FC = () => {
                       }}
                     >
                       <Typography sx={{ fontWeight: 700, fontSize: 15 }}>プロジェクト</Typography>
-                      <Button
-                        size="small"
-                        endIcon={<ArrowForwardIcon sx={{ fontSize: 14 }} />}
-                        onClick={() => navigate('/projects')}
-                        sx={{ fontSize: 12, py: 0.25, px: 1 }}
-                      >
-                        すべて見る
-                      </Button>
+                      <Stack direction="row" spacing={0.5}>
+                        {isAdmin && (
+                          <Button
+                            size="small"
+                            startIcon={<AddIcon sx={{ fontSize: 14 }} />}
+                            onClick={() => setProjectDialogOpen(true)}
+                            sx={{ fontSize: 12, py: 0.25, px: 1, color: '#4F46E5' }}
+                          >
+                            作成
+                          </Button>
+                        )}
+                        <Button
+                          size="small"
+                          endIcon={<ArrowForwardIcon sx={{ fontSize: 14 }} />}
+                          onClick={() => navigate('/projects')}
+                          sx={{ fontSize: 12, py: 0.25, px: 1 }}
+                        >
+                          すべて見る
+                        </Button>
+                      </Stack>
                     </Box>
                     <Box sx={{ p: 2 }}>
                       <Stack spacing={1}>
@@ -604,6 +649,17 @@ export const DashboardPage: React.FC = () => {
           </Stack>
         )}
       </Container>
+
+      <TeamCreateDialog
+        open={teamDialogOpen}
+        onClose={() => setTeamDialogOpen(false)}
+        onCreated={(id) => setSelectedTeamId(id)}
+      />
+      <ProjectCreateDialog
+        open={projectDialogOpen}
+        onClose={() => setProjectDialogOpen(false)}
+        defaultTeamId={selectedTeamId}
+      />
     </Box>
   )
 }

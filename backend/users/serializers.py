@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from .models import Team, TeamMembership
+from .permissions import is_admin_group_member
 
 User = get_user_model()
 
@@ -11,6 +12,20 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ["id", "username", "email", "display_name"]
         read_only_fields = ["id"]
+
+
+class MeSerializer(serializers.ModelSerializer):
+    """`/auth/me/` 向け。管理者グループ所属フラグを含む。"""
+
+    is_admin = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "display_name", "is_admin"]
+        read_only_fields = ["id", "is_admin"]
+
+    def get_is_admin(self, obj) -> bool:
+        return is_admin_group_member(obj)
 
 
 class RegisterSerializer(serializers.ModelSerializer):

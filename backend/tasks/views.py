@@ -6,6 +6,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
+from users.permissions import IsAdminGroupMemberForWrite
+
 from .models import Project, Task, TaskComment
 from .permissions import IsTeamMember
 from .serializers import ProjectSerializer, TaskCommentSerializer, TaskSerializer
@@ -13,7 +15,7 @@ from .serializers import ProjectSerializer, TaskCommentSerializer, TaskSerialize
 
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated, IsTeamMember]
+    permission_classes = [IsAuthenticated, IsTeamMember, IsAdminGroupMemberForWrite]
 
     def get_queryset(self):
         user = self.request.user

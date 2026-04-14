@@ -5,8 +5,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Team, TeamMembership
+from .permissions import IsAdminGroupMemberForWrite, is_admin_group_member
 from .serializers import (
     ChangePasswordSerializer,
+    MeSerializer,
     RegisterSerializer,
     TeamMembershipSerializer,
     TeamSerializer,
@@ -18,9 +20,12 @@ User = get_user_model()
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.all().order_by("id")
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # admin ユーザーはチームメンバーや担当者候補として扱わない。
+        return User.objects.exclude(username="admin").order_by("id")
 
 
 class RegisterView(generics.CreateAPIView):
@@ -30,7 +35,7 @@ class RegisterView(generics.CreateAPIView):
 
 
 class MeView(generics.RetrieveAPIView):
-    serializer_class = UserSerializer
+    serializer_class = MeSerializer
 
     def get_object(self):
         return self.request.user
@@ -64,6 +69,7 @@ class ChangePasswordView(APIView):
 
 class TeamViewSet(viewsets.ModelViewSet):
     serializer_class = TeamSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminGroupMemberForWrite]
 
     def get_queryset(self):
         return Team.objects.filter(memberships__user=self.request.user).distinct()

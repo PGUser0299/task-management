@@ -1,6 +1,7 @@
 import React from 'react'
 import {
   Box,
+  Button,
   CircularProgress,
   Container,
   Grid,
@@ -13,9 +14,11 @@ import {
 } from '@mui/material'
 import EmailIcon from '@mui/icons-material/Email'
 import PersonIcon from '@mui/icons-material/Person'
+import AddIcon from '@mui/icons-material/Add'
 import { useQuery } from '@tanstack/react-query'
 import { useApiClient } from '../lib/apiClient'
-import type { Team, TeamMember } from '../types'
+import { MemberAddDialog } from '../components/members/MemberAddDialog'
+import type { Team, TeamMember, Me } from '../types'
 
 type MemberUser = {
   id: number
@@ -36,6 +39,17 @@ const getAvatarColor = (name: string) => avatarColors[name.charCodeAt(0) % avata
 export const MembersPage: React.FC = () => {
   const api = useApiClient()
   const [selectedTeamId, setSelectedTeamId] = React.useState<number | null>(null)
+  const [dialogOpen, setDialogOpen] = React.useState(false)
+
+  const { data: me } = useQuery<Me>({
+    queryKey: ['me'],
+    queryFn: async () => {
+      const res = await api.get('/auth/me/')
+      return res.data
+    },
+    staleTime: 1000 * 60 * 5,
+  })
+  const isAdmin = !!me?.is_admin
 
   const { data: teams, isLoading: teamsLoading } = useQuery<Team[]>({
     queryKey: ['teams'],
@@ -81,12 +95,30 @@ export const MembersPage: React.FC = () => {
           borderBottom: '1px solid rgba(15,23,42,0.07)',
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>
-          メンバー
-        </Typography>
-        <Typography sx={{ color: '#64748B', fontSize: 14, mt: 0.25 }}>
-          チームに所属しているメンバー一覧
-        </Typography>
+        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={2}>
+          <Box>
+            <Typography variant="h5" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>
+              メンバー
+            </Typography>
+            <Typography sx={{ color: '#64748B', fontSize: 14, mt: 0.25 }}>
+              チームに所属しているメンバー一覧
+            </Typography>
+          </Box>
+          {isAdmin && selectedTeamId && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setDialogOpen(true)}
+              sx={{
+                background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+                boxShadow: '0 2px 8px rgba(79,70,229,0.35)',
+                flexShrink: 0,
+              }}
+            >
+              メンバー追加
+            </Button>
+          )}
+        </Stack>
 
         {teamList.length > 0 && (
           <Tabs
@@ -262,6 +294,14 @@ export const MembersPage: React.FC = () => {
           </>
         )}
       </Container>
+
+      {selectedTeamId && (
+        <MemberAddDialog
+          teamId={selectedTeamId}
+          open={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+        />
+      )}
     </Box>
   )
 }

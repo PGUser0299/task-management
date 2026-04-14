@@ -12,14 +12,17 @@ import {
 } from '@mui/material'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+import AddIcon from '@mui/icons-material/Add'
 import { useQuery } from '@tanstack/react-query'
 import { useApiClient } from '../lib/apiClient'
 import { useNavigate } from 'react-router-dom'
-import type { Project } from '../types'
+import { ProjectCreateDialog } from '../components/projects/ProjectCreateDialog'
+import type { Project, Me } from '../types'
 
 export const ProjectsListPage: React.FC = () => {
   const api = useApiClient()
   const navigate = useNavigate()
+  const [dialogOpen, setDialogOpen] = React.useState(false)
 
   const { data, isLoading, isError } = useQuery<Project[]>({
     queryKey: ['all-projects'],
@@ -28,6 +31,16 @@ export const ProjectsListPage: React.FC = () => {
       return res.data.results ?? res.data ?? []
     },
   })
+
+  const { data: me } = useQuery<Me>({
+    queryKey: ['me'],
+    queryFn: async () => {
+      const res = await api.get('/auth/me/')
+      return res.data
+    },
+    staleTime: 1000 * 60 * 5,
+  })
+  const isAdmin = !!me?.is_admin
 
   const projects = Array.isArray(data) ? data : []
 
@@ -42,12 +55,30 @@ export const ProjectsListPage: React.FC = () => {
           borderBottom: '1px solid rgba(15,23,42,0.07)',
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>
-          プロジェクト
-        </Typography>
-        <Typography sx={{ color: '#64748B', fontSize: 14, mt: 0.25 }}>
-          すべてのプロジェクトを管理
-        </Typography>
+        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={2}>
+          <Box>
+            <Typography variant="h5" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>
+              プロジェクト
+            </Typography>
+            <Typography sx={{ color: '#64748B', fontSize: 14, mt: 0.25 }}>
+              すべてのプロジェクトを管理
+            </Typography>
+          </Box>
+          {isAdmin && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setDialogOpen(true)}
+              sx={{
+                background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+                boxShadow: '0 2px 8px rgba(79,70,229,0.35)',
+                flexShrink: 0,
+              }}
+            >
+              プロジェクト作成
+            </Button>
+          )}
+        </Stack>
       </Box>
 
       <Container maxWidth="lg" sx={{ py: 3 }}>
@@ -211,6 +242,8 @@ export const ProjectsListPage: React.FC = () => {
           </>
         )}
       </Container>
+
+      <ProjectCreateDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
     </Box>
   )
 }

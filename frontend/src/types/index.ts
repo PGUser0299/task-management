@@ -16,6 +16,11 @@ export type UserMini = {
   display_name: string
 }
 
+export type Me = UserMini & {
+  email: string
+  is_admin: boolean
+}
+
 export type TeamMember = {
   id: number
   user: UserMini
