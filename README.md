@@ -1,0 +1,237 @@
+# AI チームタスクボード
+
+チームでタスクを管理するための Web アプリケーション。AI によるタスク自動分解・優先度サジェスト機能を備える。
+
+## 技術スタック
+
+### バックエンド
+
+| 技術 | バージョン | 用途 |
+|---|---|---|
+| Python | 3.11+ | ランタイム |
+| Django | 5.2+ | Web フレームワーク |
+| Django REST Framework | 3.15+ | REST API |
+| djangorestframework-simplejwt | 5.3+ | JWT 認証 |
+| django-cors-headers | 4.4+ | CORS 設定 |
+| django-environ | 0.11+ | 環境変数管理 |
+| SQLite（開発）/ PostgreSQL（本番） | — | データベース |
+
+### フロントエンド
+
+| 技術 | バージョン | 用途 |
+|---|---|---|
+| React | 18.3 | UI ライブラリ |
+| TypeScript | 5.9 | 型安全 |
+| Vite | 7.x | ビルドツール |
+| MUI (Material UI) | v6 | コンポーネントライブラリ |
+| TanStack React Query | v5 | サーバー状態管理 |
+| Axios | 1.7 | HTTP クライアント |
+| React Router | v7 | ルーティング |
+
+---
+
+## プロジェクト構成
+
+```
+TodoProject/
+├── backend/          # Django アプリケーション
+│   ├── config/       # プロジェクト設定・グローバル URL
+│   ├── users/        # ユーザー認証・チーム管理
+│   ├── tasks/        # プロジェクト・タスク管理
+│   ├── ai_assist/    # AI タスク支援
+│   ├── manage.py
+│   └── requirements.txt
+├── frontend/         # React アプリケーション
+│   ├── src/
+│   │   ├── components/    # 再利用可能コンポーネント
+│   │   ├── screens/       # ページコンポーネント
+│   │   ├── lib/           # ユーティリティ（apiClient, apiError）
+│   │   ├── state/         # AuthContext
+│   │   ├── types/         # 共通型定義
+│   │   └── router.tsx     # ルーティング定義
+│   ├── package.json
+│   └── tsconfig.json
+├── 基本設計.md
+└── 詳細設計.md
+```
+
+---
+
+## セットアップ
+
+### 前提条件
+
+- Python 3.11 以上
+- Node.js 20 以上
+- npm 10 以上
+
+---
+
+### バックエンド
+
+```bash
+cd backend
+
+# 仮想環境作成・有効化
+python -m venv venv
+# Windows
+venv\Scripts\activate
+# macOS/Linux
+source venv/bin/activate
+
+# 依存パッケージインストール
+pip install -r requirements.txt
+
+# 環境変数設定（.env ファイルを作成）
+cp .env.example .env   # または後述の内容で手動作成
+
+# マイグレーション
+python manage.py migrate
+
+# 開発サーバー起動
+python manage.py runserver
+```
+
+バックエンドは `http://localhost:8000` で起動する。
+
+#### 環境変数（`.env`）
+
+```ini
+SECRET_KEY=your-secret-key-here
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+DATABASE_URL=sqlite:///db.sqlite3
+CORS_ALLOW_ALL_ORIGINS=True
+```
+
+本番環境では `DEBUG=False`、`CORS_ALLOW_ALL_ORIGINS=False`、`CORS_ALLOWED_ORIGINS=https://your-domain.com` に変更すること。
+
+#### スーパーユーザー作成（任意）
+
+```bash
+python manage.py createsuperuser
+```
+
+Django Admin (`http://localhost:8000/admin/`) からデータを直接操作できる。
+
+---
+
+### フロントエンド
+
+```bash
+cd frontend
+
+# 依存パッケージインストール
+npm install
+
+# 環境変数設定
+# src/vite.config.ts のデフォルト値 (http://localhost:8000) を使う場合は設定不要
+# バックエンドの URL を変える場合は .env.local を作成
+echo "VITE_API_BASE_URL=http://localhost:8000" > .env.local
+
+# 開発サーバー起動
+npm run dev
+```
+
+フロントエンドは `http://localhost:5173` で起動する。
+
+#### フロントエンド環境変数
+
+| 変数名 | デフォルト | 説明 |
+|---|---|---|
+| `VITE_API_BASE_URL` | `http://localhost:8000` | バックエンド API の URL |
+
+---
+
+## 開発サーバー起動手順（まとめ）
+
+1. バックエンド起動:
+   ```bash
+   cd backend && python manage.py runserver
+   ```
+
+2. フロントエンド起動（別ターミナル）:
+   ```bash
+   cd frontend && npm run dev
+   ```
+
+3. ブラウザで `http://localhost:5173` を開く
+
+---
+
+## 主な機能
+
+| 機能 | 説明 |
+|---|---|
+| ユーザー認証 | JWT ベースのログイン・新規登録。トークン期限切れ時は自動ログアウト |
+| プロフィール管理 | 表示名変更（パスワード確認あり）・パスワード変更 |
+| チーム管理 | チーム作成・メンバー招待（owner 権限のみ） |
+| プロジェクト管理 | チームごとのプロジェクト作成・一覧表示 |
+| カンバンボード | Pending / To Do / In Progress / Done の 4列。タスクカードのクリックで詳細ドロワーを表示 |
+| タスク管理 | ステータス・優先度・担当者・期限・見積の設定。サブタスクの追加・担当者アサイン |
+| AI タスク分解 | 自然言語テキストからタスク・サブタスク・優先度・見積を自動生成 |
+| AI サジェスト | 今日フォーカスすべきタスクを優先度・期限に基づいて提案 |
+| ダッシュボード | チーム別のスタットカード・進行中プロジェクト・進行中メンバー・AI サジェスト表示 |
+
+---
+
+## API 概要
+
+Base URL: `http://localhost:8000/api`
+
+認証が必要なエンドポイントには `Authorization: Bearer {access_token}` ヘッダーを付与すること。
+
+| メソッド | エンドポイント | 説明 |
+|---|---|---|
+| POST | `/auth/register/` | 新規ユーザー登録 |
+| POST | `/auth/login/` | ログイン（JWT 取得） |
+| POST | `/auth/token/refresh/` | アクセストークン更新 |
+| GET | `/auth/me/` | ログインユーザー情報取得 |
+| PATCH | `/auth/me/display-name/` | 表示名変更（パスワード確認あり） |
+| POST | `/auth/me/password/` | パスワード変更 |
+| GET/POST | `/teams/` | チーム一覧・作成 |
+| GET/POST | `/team-memberships/` | メンバー一覧・追加（`?team={id}` フィルタ対応） |
+| GET/POST | `/projects/` | プロジェクト一覧・作成（`?team={id}` フィルタ対応） |
+| GET/POST | `/tasks/` | タスク一覧・作成（`?project`, `?parent`, `?status` 等フィルタ対応） |
+| PATCH/DELETE | `/tasks/{id}/` | タスク更新・削除 |
+| GET/POST | `/tasks/{id}/comments/` | コメント取得・投稿 |
+| POST | `/ai/parse-task/` | 自然言語テキストからタスク情報を抽出 |
+| POST | `/ai/suggest-today/` | 今日フォーカスすべきタスクを提案 |
+
+詳細な仕様は `詳細設計.md` を参照。
+
+---
+
+## 認証フロー
+
+1. `/auth/login/` でログインすると `{ access, refresh }` トークンを取得
+2. トークンは `localStorage` の `taskapp_tokens` キーに保存
+3. 全 API リクエストに `Authorization: Bearer {access}` を自動付与
+4. アクセストークン期限切れ（401）時は自動ログアウトし `/login` にリダイレクト
+
+---
+
+## ビルド
+
+### フロントエンド本番ビルド
+
+```bash
+cd frontend
+npm run build
+# dist/ ディレクトリに成果物が生成される
+```
+
+### バックエンド本番設定
+
+```bash
+# 静的ファイル収集
+python manage.py collectstatic
+
+# .env の本番設定
+DEBUG=False
+SECRET_KEY=<strong-random-key>
+ALLOWED_HOSTS=your-domain.com
+DATABASE_URL=postgresql://user:pass@host:5432/dbname
+CORS_ALLOW_ALL_ORIGINS=False
+CORS_ALLOWED_ORIGINS=https://your-domain.com
+```
