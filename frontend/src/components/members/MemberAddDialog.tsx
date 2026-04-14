@@ -53,13 +53,13 @@ export const MemberAddDialog: React.FC<Props> = ({ teamId, open, onClose }) => {
     },
   })
 
-  // admin ユーザー及びすでにチームに所属しているメンバーは候補から除外
+  // superuser 及びすでにチームに所属しているメンバーは候補から除外
   const candidates = useMemo(() => {
     const list = Array.isArray(users) ? users : []
     const existingIds = new Set(
       (Array.isArray(memberships) ? memberships : []).map((m) => m.user.id)
     )
-    return list.filter((u) => u.username !== 'admin' && !existingIds.has(u.id))
+    return list.filter((u) => !u.is_superuser && !existingIds.has(u.id))
   }, [users, memberships])
 
   const addMember = useMutation({

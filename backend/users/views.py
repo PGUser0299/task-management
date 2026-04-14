@@ -24,8 +24,8 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # admin ユーザーはチームメンバーや担当者候補として扱わない。
-        return User.objects.exclude(username="admin").order_by("id")
+        # Django の superuser はチームメンバーや担当者候補として扱わない。
+        return User.objects.exclude(is_superuser=True).order_by("id")
 
 
 class RegisterView(generics.CreateAPIView):

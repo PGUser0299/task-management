@@ -25,6 +25,7 @@ type MemberUser = {
   username: string
   display_name: string
   email?: string
+  is_superuser?: boolean
 }
 
 type MemberEntry = TeamMember & { user: MemberUser }
@@ -77,9 +78,9 @@ export const MembersPage: React.FC = () => {
 
   const teamList = Array.isArray(teams) ? teams : []
 
-  // admin を除外
+  // superuser を除外
   const members = (Array.isArray(memberships) ? memberships : []).filter(
-    (m) => m.user.username !== 'admin'
+    (m) => !m.user.is_superuser
   )
 
   const isLoading = teamsLoading || membersLoading

@@ -14,6 +14,7 @@ export type UserMini = {
   id: number
   username: string
   display_name: string
+  is_superuser?: boolean
 }
 
 export type Me = UserMini & {
