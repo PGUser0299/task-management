@@ -24,7 +24,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Django の superuser はチームメンバーや担当者候補として扱わない。
+        # Django superuser はチームメンバーとして扱わない。
         return User.objects.exclude(is_superuser=True).order_by("id")
 
 
