@@ -1,5 +1,6 @@
 import React from 'react'
 import {
+  AppBar,
   Avatar,
   Box,
   Drawer,
@@ -8,6 +9,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Toolbar,
   Tooltip,
   Typography,
   alpha,
@@ -18,11 +20,10 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import LogoutIcon from '@mui/icons-material/Logout'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import SettingsIcon from '@mui/icons-material/Settings'
+import MenuIcon from '@mui/icons-material/Menu'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { useApiClient } from '../../lib/apiClient'
 import { useAuth } from '../../state/auth'
-import type { UserMini } from '../../types'
+import { useMe } from '../../lib/queries'
 
 const SIDEBAR_WIDTH = 240
 
@@ -32,8 +33,6 @@ const navItems = [
   { label: 'メンバー', icon: <PeopleAltIcon fontSize="small" />, path: '/members' },
 ]
 
-type MeResponse = UserMini & { email: string }
-
 type Props = {
   children: React.ReactNode
 }
@@ -42,20 +41,22 @@ export const AppLayout: React.FC<Props> = ({ children }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const { logout } = useAuth()
-  const api = useApiClient()
+  const [mobileOpen, setMobileOpen] = React.useState(false)
 
-  const { data: me } = useQuery<MeResponse>({
-    queryKey: ['me'],
-    queryFn: async () => {
-      const res = await api.get('/auth/me/')
-      return res.data
-    },
-    staleTime: 1000 * 60 * 5,
-  })
+  const { data: me } = useMe()
+
+  React.useEffect(() => {
+    setMobileOpen(false)
+  }, [location.pathname])
 
   const handleLogout = () => {
     logout()
     navigate('/login')
+  }
+
+  const handleNavigate = (path: string) => {
+    navigate(path)
+    setMobileOpen(false)
   }
 
   const displayName = me?.display_name || me?.username || '...'
@@ -125,7 +126,7 @@ export const AppLayout: React.FC<Props> = ({ children }) => {
           return (
             <ListItemButton
               key={item.path}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNavigate(item.path)}
               sx={{
                 borderRadius: 1.5,
                 color: isActive ? 'white' : 'rgba(255,255,255,0.5)',
@@ -198,7 +199,7 @@ export const AppLayout: React.FC<Props> = ({ children }) => {
         <Tooltip title="アカウント設定">
           <IconButton
             size="small"
-            onClick={() => navigate('/profile')}
+            onClick={() => handleNavigate('/profile')}
             sx={{
               color: location.pathname === '/profile' ? 'white' : 'rgba(255,255,255,0.4)',
               p: 0.5,
@@ -227,17 +228,79 @@ export const AppLayout: React.FC<Props> = ({ children }) => {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+      {/* Mobile top bar */}
+      <AppBar
+        position="fixed"
+        color="inherit"
+        elevation={0}
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          bgcolor: 'white',
+          borderBottom: '1px solid rgba(15,23,42,0.07)',
+        }}
+      >
+        <Toolbar sx={{ minHeight: 56, px: 2, gap: 1 }}>
+          <IconButton
+            edge="start"
+            aria-label="メニューを開く"
+            onClick={() => setMobileOpen(true)}
+            sx={{ color: '#0F172A' }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Box display="flex" alignItems="center" gap={1}>
+            <Box
+              sx={{
+                width: 28,
+                height: 28,
+                borderRadius: 1.5,
+                background: 'linear-gradient(135deg, #818CF8, #4F46E5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <AutoAwesomeIcon sx={{ fontSize: 14, color: 'white' }} />
+            </Box>
+            <Typography sx={{ fontWeight: 700, fontSize: 14, color: '#0F172A' }}>
+              TaskBoard
+            </Typography>
+          </Box>
+        </Toolbar>
+      </AppBar>
+
+      {/* Sidebar navigation */}
       <Box
         component="nav"
         sx={{
-          width: SIDEBAR_WIDTH,
-          flexShrink: 0,
-          display: { xs: 'none', md: 'block' },
+          width: { md: SIDEBAR_WIDTH },
+          flexShrink: { md: 0 },
         }}
       >
+        {/* Desktop permanent drawer */}
         <Drawer
           variant="permanent"
           sx={{
+            display: { xs: 'none', md: 'block' },
+            '& .MuiDrawer-paper': {
+              width: SIDEBAR_WIDTH,
+              boxSizing: 'border-box',
+              border: 'none',
+            },
+          }}
+          open
+        >
+          {sidebarContent}
+        </Drawer>
+
+        {/* Mobile temporary drawer */}
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={() => setMobileOpen(false)}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            display: { xs: 'block', md: 'none' },
             '& .MuiDrawer-paper': {
               width: SIDEBAR_WIDTH,
               boxSizing: 'border-box',
@@ -249,7 +312,15 @@ export const AppLayout: React.FC<Props> = ({ children }) => {
         </Drawer>
       </Box>
 
-      <Box component="main" sx={{ flex: 1, minWidth: 0, overflow: 'auto' }}>
+      <Box
+        component="main"
+        sx={{
+          flex: 1,
+          minWidth: 0,
+          overflow: 'auto',
+          pt: { xs: 7, md: 0 },
+        }}
+      >
         {children}
       </Box>
     </Box>

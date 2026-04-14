@@ -11,41 +11,41 @@ import {
 } from '@mui/material'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
+import { useMutation } from '@tanstack/react-query'
 import { createApiClient } from '../lib/apiClient'
 import { useAuth } from '../state/auth'
 import { BrandingPanel } from '../components/auth/BrandingPanel'
+
+type LoginInput = { username: string; password: string }
+type LoginResponse = { access: string; refresh: string }
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate()
   const { setTokens } = useAuth()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-    try {
+  const loginMutation = useMutation<LoginResponse, unknown, LoginInput>({
+    mutationFn: async ({ username, password }) => {
       const api = createApiClient()
       const res = await api.post('/auth/login/', { username, password })
-      setTokens({ access: res.data.access, refresh: res.data.refresh })
+      return res.data
+    },
+    onSuccess: (data) => {
+      setTokens({ access: data.access, refresh: data.refresh })
       navigate('/')
-    } catch (err) {
-      const isAuthError =
-        err &&
-        typeof err === 'object' &&
-        'response' in err &&
-        (err as { response?: { status?: number } }).response?.status === 401
-      setError(
-        isAuthError
-          ? 'ユーザー名またはパスワードが正しくありません。'
-          : 'ログインに失敗しました。しばらくしてから再試行してください。'
-      )
-    } finally {
-      setLoading(false)
-    }
+    },
+  })
+
+  const errorMessage = loginMutation.error
+    ? (loginMutation.error as { response?: { status?: number } })?.response?.status === 401
+      ? 'ユーザー名またはパスワードが正しくありません。'
+      : 'ログインに失敗しました。しばらくしてから再試行してください。'
+    : null
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    loginMutation.mutate({ username, password })
   }
 
   return (
@@ -154,7 +154,7 @@ export const LoginPage: React.FC = () => {
                 </Box>
               </Stack>
 
-              {error && (
+              {errorMessage && (
                 <Box
                   sx={{
                     mt: 2,
@@ -166,7 +166,7 @@ export const LoginPage: React.FC = () => {
                   }}
                 >
                   <Typography color="error" variant="body2" sx={{ fontSize: 13 }}>
-                    {error}
+                    {errorMessage}
                   </Typography>
                 </Box>
               )}
@@ -176,7 +176,7 @@ export const LoginPage: React.FC = () => {
                 variant="contained"
                 fullWidth
                 size="large"
-                disabled={loading}
+                disabled={loginMutation.isPending}
                 sx={{
                   mt: 3,
                   py: 1.25,
@@ -191,7 +191,11 @@ export const LoginPage: React.FC = () => {
                   },
                 }}
               >
-                {loading ? <CircularProgress size={22} color="inherit" /> : 'サインイン'}
+                {loginMutation.isPending ? (
+                  <CircularProgress size={22} color="inherit" />
+                ) : (
+                  'サインイン'
+                )}
               </Button>
             </Box>
           </Paper>

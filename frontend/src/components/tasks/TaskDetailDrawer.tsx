@@ -20,7 +20,12 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useApiClient } from '../../lib/apiClient'
-import { STATUS_OPTIONS } from './taskConstants'
+import {
+  PRIORITY_CHIP_COLORS,
+  PRIORITY_DOT_COLORS,
+  PRIORITY_LABELS,
+  STATUS_OPTIONS,
+} from './taskConstants'
 import { SubtaskList } from './SubtaskList'
 import type { Task, TaskStatus, TeamMember } from '../../types'
 
@@ -31,23 +36,6 @@ type Props = {
   projectId: number
   open: boolean
   onClose: () => void
-}
-
-const priorityConfig: Record<
-  string,
-  { color: 'default' | 'success' | 'warning' | 'error'; label: string }
-> = {
-  low: { color: 'default', label: '低' },
-  medium: { color: 'success', label: '中' },
-  high: { color: 'warning', label: '高' },
-  urgent: { color: 'error', label: '緊急' },
-}
-
-const priorityDotColor: Record<string, string> = {
-  urgent: '#EF4444',
-  high: '#F59E0B',
-  medium: '#10B981',
-  low: '#94A3B8',
 }
 
 type ProjectMini = { id: number; team: number }
@@ -215,7 +203,7 @@ export const TaskDetailDrawer: React.FC<Props> = ({
                       borderRadius: '50%',
                       mt: 1,
                       flexShrink: 0,
-                      bgcolor: priorityDotColor[task.priority] ?? '#94A3B8',
+                      bgcolor: PRIORITY_DOT_COLORS[task.priority] ?? '#94A3B8',
                     }}
                   />
                   <Typography
@@ -245,8 +233,8 @@ export const TaskDetailDrawer: React.FC<Props> = ({
                 <Box display="flex" flexWrap="wrap" gap={1}>
                   <Chip
                     size="small"
-                    label={priorityConfig[task.priority]?.label ?? task.priority}
-                    color={priorityConfig[task.priority]?.color ?? 'default'}
+                    label={PRIORITY_LABELS[task.priority] ?? task.priority}
+                    color={PRIORITY_CHIP_COLORS[task.priority] ?? 'default'}
                   />
                   {task.due_date && (
                     <Chip

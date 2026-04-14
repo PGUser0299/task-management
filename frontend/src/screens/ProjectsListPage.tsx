@@ -15,9 +15,10 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import AddIcon from '@mui/icons-material/Add'
 import { useQuery } from '@tanstack/react-query'
 import { useApiClient } from '../lib/apiClient'
+import { useMe } from '../lib/queries'
 import { useNavigate } from 'react-router-dom'
 import { ProjectCreateDialog } from '../components/projects/ProjectCreateDialog'
-import type { Project, Me } from '../types'
+import type { Project } from '../types'
 
 export const ProjectsListPage: React.FC = () => {
   const api = useApiClient()
@@ -32,14 +33,7 @@ export const ProjectsListPage: React.FC = () => {
     },
   })
 
-  const { data: me } = useQuery<Me>({
-    queryKey: ['me'],
-    queryFn: async () => {
-      const res = await api.get('/auth/me/')
-      return res.data
-    },
-    staleTime: 1000 * 60 * 5,
-  })
+  const { data: me } = useMe()
   const isAdmin = !!me?.is_admin
 
   const projects = Array.isArray(data) ? data : []

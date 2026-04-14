@@ -12,6 +12,7 @@ import {
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { AxiosError } from 'axios'
+import { useMutation } from '@tanstack/react-query'
 import { createApiClient } from '../lib/apiClient'
 import { useAuth } from '../state/auth'
 import { BrandingPanel } from '../components/auth/BrandingPanel'
@@ -23,6 +24,15 @@ type RegisterErrorData = {
   non_field_errors?: string[]
 }
 
+type RegisterInput = {
+  username: string
+  email: string
+  displayName: string
+  password: string
+}
+
+type LoginResponse = { access: string; refresh: string }
+
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate()
   const { setTokens } = useAuth()
@@ -30,37 +40,39 @@ export const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-    const api = createApiClient()
-    try {
+  const registerMutation = useMutation<LoginResponse, AxiosError<RegisterErrorData>, RegisterInput>({
+    mutationFn: async (input) => {
+      const api = createApiClient()
       await api.post('/auth/register/', {
-        username,
-        email: email || undefined,
-        display_name: displayName || undefined,
-        password,
+        username: input.username,
+        email: input.email || undefined,
+        display_name: input.displayName || undefined,
+        password: input.password,
       })
-      const res = await api.post('/auth/login/', { username, password })
-      setTokens({ access: res.data.access, refresh: res.data.refresh })
+      const res = await api.post('/auth/login/', {
+        username: input.username,
+        password: input.password,
+      })
+      return res.data
+    },
+    onSuccess: (data) => {
+      setTokens({ access: data.access, refresh: data.refresh })
       navigate('/')
-    } catch (err) {
-      const axiosErr = err as AxiosError<RegisterErrorData>
-      const data = axiosErr.response?.data
-      const msg =
-        data?.username?.[0] ??
-        data?.email?.[0] ??
-        data?.password?.[0] ??
-        data?.non_field_errors?.[0] ??
-        '登録に失敗しました。'
-      setError(msg)
-    } finally {
-      setLoading(false)
-    }
+    },
+  })
+
+  const errorMessage = registerMutation.error
+    ? (registerMutation.error.response?.data?.username?.[0] ??
+        registerMutation.error.response?.data?.email?.[0] ??
+        registerMutation.error.response?.data?.password?.[0] ??
+        registerMutation.error.response?.data?.non_field_errors?.[0] ??
+        '登録に失敗しました。')
+    : null
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    registerMutation.mutate({ username, email, displayName, password })
   }
 
   return (
@@ -216,7 +228,7 @@ export const RegisterPage: React.FC = () => {
                 </Box>
               </Stack>
 
-              {error && (
+              {errorMessage && (
                 <Box
                   sx={{
                     mt: 2,
@@ -228,7 +240,7 @@ export const RegisterPage: React.FC = () => {
                   }}
                 >
                   <Typography color="error" variant="body2" sx={{ fontSize: 13 }}>
-                    {error}
+                    {errorMessage}
                   </Typography>
                 </Box>
               )}
@@ -238,7 +250,7 @@ export const RegisterPage: React.FC = () => {
                 variant="contained"
                 fullWidth
                 size="large"
-                disabled={loading}
+                disabled={registerMutation.isPending}
                 sx={{
                   mt: 3,
                   py: 1.25,
@@ -253,7 +265,7 @@ export const RegisterPage: React.FC = () => {
                   },
                 }}
               >
-                {loading ? (
+                {registerMutation.isPending ? (
                   <CircularProgress size={22} color="inherit" />
                 ) : (
                   'アカウントを作成'

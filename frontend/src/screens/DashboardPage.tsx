@@ -2,102 +2,32 @@ import React from 'react'
 import {
   Box,
   Button,
-  Chip,
   CircularProgress,
   Container,
-  Divider,
   Grid,
-  Paper,
   Stack,
   Tab,
   Tabs,
   Typography,
   alpha,
 } from '@mui/material'
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn'
 import PendingActionsIcon from '@mui/icons-material/PendingActions'
 import GroupIcon from '@mui/icons-material/Group'
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import AddIcon from '@mui/icons-material/Add'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useApiClient } from '../lib/apiClient'
+import { useMe } from '../lib/queries'
 import { TeamCreateDialog } from '../components/teams/TeamCreateDialog'
 import { ProjectCreateDialog } from '../components/projects/ProjectCreateDialog'
-import type { Team, Project, SuggestTodayResponse, TeamMember, Task, Me } from '../types'
-
-const STATUS_COLORS: Record<string, string> = {
-  pending: '#CBD5E1',
-  todo: '#94A3B8',
-  in_progress: '#4F46E5',
-  done: '#10B981',
-}
-
-const STATUS_LEGEND = [
-  { key: 'pending', label: 'Pending', color: '#CBD5E1' },
-  { key: 'todo', label: 'To Do', color: '#94A3B8' },
-  { key: 'in_progress', label: 'Doing', color: '#4F46E5' },
-  { key: 'done', label: 'Done', color: '#10B981' },
-] as const
-
-type StatCardProps = {
-  label: string
-  value: number | string
-  icon: React.ReactNode
-  color: string
-  bgColor: string
-}
-
-const StatCard: React.FC<StatCardProps> = ({ label, value, icon, color, bgColor }) => (
-  <Paper
-    elevation={0}
-    sx={{
-      p: 2.5,
-      border: '1px solid rgba(15,23,42,0.07)',
-      borderRadius: 2.5,
-      display: 'flex',
-      alignItems: 'center',
-      gap: 2,
-    }}
-  >
-    <Box
-      sx={{
-        width: 44,
-        height: 44,
-        borderRadius: 2,
-        bgcolor: bgColor,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-      }}
-    >
-      <Box sx={{ color, display: 'flex' }}>{icon}</Box>
-    </Box>
-    <Box>
-      <Typography sx={{ fontSize: 22, fontWeight: 800, color: '#0F172A', lineHeight: 1 }}>
-        {value}
-      </Typography>
-      <Typography sx={{ fontSize: 12, color: '#64748B', mt: 0.25 }}>{label}</Typography>
-    </Box>
-  </Paper>
-)
-
-const priorityLabel: Record<string, string> = {
-  urgent: '緊急',
-  high: '高',
-  medium: '中',
-  low: '低',
-}
-
-const priorityColor: Record<string, 'error' | 'warning' | 'success' | 'default'> = {
-  urgent: 'error',
-  high: 'warning',
-  medium: 'success',
-  low: 'default',
-}
+import { StatCard } from '../components/dashboard/StatCard'
+import { AiSuggestPanel } from '../components/dashboard/AiSuggestPanel'
+import { ActiveProjectsPanel } from '../components/dashboard/ActiveProjectsPanel'
+import { ActiveMembersPanel } from '../components/dashboard/ActiveMembersPanel'
+import { TaskProgressSummary } from '../components/dashboard/TaskProgressSummary'
+import type { Team, Project, SuggestTodayResponse, TeamMember, Task } from '../types'
 
 export const DashboardPage: React.FC = () => {
   const api = useApiClient()
@@ -106,14 +36,7 @@ export const DashboardPage: React.FC = () => {
   const [teamDialogOpen, setTeamDialogOpen] = React.useState(false)
   const [projectDialogOpen, setProjectDialogOpen] = React.useState(false)
 
-  const { data: me } = useQuery<Me>({
-    queryKey: ['me'],
-    queryFn: async () => {
-      const res = await api.get('/auth/me/')
-      return res.data
-    },
-    staleTime: 1000 * 60 * 5,
-  })
+  const { data: me } = useMe()
   const isAdmin = !!me?.is_admin
 
   const { data: teams, isLoading: teamsLoading } = useQuery<Team[]>({
@@ -168,10 +91,7 @@ export const DashboardPage: React.FC = () => {
     }
   }, [teams])
 
-  const teamList = React.useMemo(
-    () => (Array.isArray(teams) ? teams : []),
-    [teams]
-  )
+  const teamList = React.useMemo(() => (Array.isArray(teams) ? teams : []), [teams])
   const projectList = React.useMemo(
     () => (Array.isArray(projects) ? projects : []),
     [projects]
@@ -184,7 +104,6 @@ export const DashboardPage: React.FC = () => {
     () => (Array.isArray(teamTasks) ? teamTasks : []),
     [teamTasks]
   )
-  const suggestItems = React.useMemo(() => aiSuggest?.items ?? [], [aiSuggest])
 
   const { inProgressTasks, activeProjectList, activeMemberList, projectNameMap } =
     React.useMemo(() => {
@@ -223,9 +142,17 @@ export const DashboardPage: React.FC = () => {
           borderBottom: '1px solid rgba(15,23,42,0.07)',
         }}
       >
-        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={2}>
+        <Stack
+          direction="row"
+          alignItems="flex-start"
+          justifyContent="space-between"
+          spacing={2}
+        >
           <Box>
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}
+            >
               ダッシュボード
             </Typography>
             <Typography sx={{ color: '#64748B', fontSize: 14, mt: 0.25 }}>
@@ -248,7 +175,6 @@ export const DashboardPage: React.FC = () => {
           )}
         </Stack>
 
-        {/* Team tabs */}
         {teamList.length > 0 && (
           <Tabs
             value={selectedTeamId ?? false}
@@ -275,7 +201,6 @@ export const DashboardPage: React.FC = () => {
       <Container maxWidth="xl" sx={{ py: 3 }}>
         {selectedTeamId && (
           <Stack spacing={3}>
-            {/* Stats row */}
             <Grid container spacing={2}>
               <Grid item xs={6} sm={3}>
                 <StatCard
@@ -316,336 +241,33 @@ export const DashboardPage: React.FC = () => {
             </Grid>
 
             <Grid container spacing={3} alignItems="start">
-              {/* AI Suggest */}
               <Grid item xs={12} lg={7}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    border: '1px solid rgba(15,23,42,0.07)',
-                    borderRadius: 2.5,
-                    overflow: 'hidden',
-                  }}
-                >
-                  <Box
-                    sx={{
-                      px: 2.5,
-                      py: 1.75,
-                      borderBottom: '1px solid rgba(15,23,42,0.07)',
-                      background: 'linear-gradient(135deg, rgba(79,70,229,0.06) 0%, rgba(129,140,248,0.03) 100%)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 28,
-                        height: 28,
-                        borderRadius: 1.5,
-                        background: 'linear-gradient(135deg, #818CF8, #4F46E5)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <AutoAwesomeIcon sx={{ fontSize: 14, color: 'white' }} />
-                    </Box>
-                    <Typography sx={{ fontWeight: 700, fontSize: 15 }}>本日の重要タスク</Typography>
-                  </Box>
-                  <Box sx={{ p: 2.5 }}>
-                    {aiLoading ? (
-                      <Box display="flex" justifyContent="center" py={3}>
-                        <CircularProgress size={24} />
-                      </Box>
-                    ) : (
-                      <>
-                        {aiSuggest?.summary && (
-                          <Box
-                            sx={{
-                              p: 1.5,
-                              borderRadius: 2,
-                              bgcolor: alpha('#4F46E5', 0.05),
-                              border: '1px solid',
-                              borderColor: alpha('#4F46E5', 0.12),
-                              mb: 2,
-                            }}
-                          >
-                            <Typography sx={{ fontSize: 13, color: '#475569', lineHeight: 1.6 }}>
-                              {aiSuggest.summary}
-                            </Typography>
-                          </Box>
-                        )}
-                        {!aiSuggest?.summary && (
-                          <Typography sx={{ fontSize: 13, color: '#94A3B8', mb: 2 }}>
-                            チームを選択すると、フォーカスすべきタスクが提案されます。
-                          </Typography>
-                        )}
-                        <Stack spacing={1.5}>
-                          {suggestItems.map((item) => (
-                            <Paper
-                              key={item.id}
-                              elevation={0}
-                              sx={{
-                                p: 2,
-                                border: '1px solid rgba(15,23,42,0.07)',
-                                borderRadius: 2,
-                                cursor: 'pointer',
-                                transition: 'all 0.15s',
-                                '&:hover': {
-                                  borderColor: alpha('#4F46E5', 0.3),
-                                  boxShadow: `0 4px 12px ${alpha('#4F46E5', 0.08)}`,
-                                },
-                              }}
-                              onClick={() => navigate(`/projects/${item.project_id}`)}
-                            >
-                              <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={1}>
-                                <Box flex={1} minWidth={0}>
-                                  {projectNameMap.has(item.project_id) && (
-                                    <Typography sx={{ fontSize: 11, color: '#818CF8', fontWeight: 600, mb: 0.25 }} noWrap>
-                                      {projectNameMap.get(item.project_id)}
-                                    </Typography>
-                                  )}
-                                  <Typography sx={{ fontWeight: 600, fontSize: 14, color: '#0F172A' }}>
-                                    {item.title}
-                                  </Typography>
-                                  <Typography sx={{ fontSize: 12, color: '#94A3B8', mt: 0.5 }}>
-                                    {item.reason}
-                                  </Typography>
-                                </Box>
-                                <Box display="flex" gap={0.75} flexShrink={0}>
-                                  <Chip
-                                    size="small"
-                                    label={priorityLabel[item.priority] ?? item.priority}
-                                    color={priorityColor[item.priority] ?? 'default'}
-                                    sx={{ height: 20, fontSize: 11 }}
-                                  />
-                                  {item.due_date && (
-                                    <Chip
-                                      size="small"
-                                      variant="outlined"
-                                      label={item.due_date}
-                                      sx={{ height: 20, fontSize: 11 }}
-                                    />
-                                  )}
-                                </Box>
-                              </Box>
-                            </Paper>
-                          ))}
-                          {suggestItems.length === 0 && aiSuggest && (
-                            <Typography sx={{ fontSize: 13, color: '#94A3B8', textAlign: 'center', py: 2 }}>
-                              提案するタスクはありません。
-                            </Typography>
-                          )}
-                        </Stack>
-                      </>
-                    )}
-                  </Box>
-                </Paper>
+                <AiSuggestPanel
+                  loading={aiLoading}
+                  suggest={aiSuggest}
+                  projectNameMap={projectNameMap}
+                  onItemClick={(projectId) => navigate(`/projects/${projectId}`)}
+                />
               </Grid>
 
-              {/* Right column: Projects + Members */}
               <Grid item xs={12} lg={5}>
                 <Stack spacing={3}>
-                  {/* Projects */}
-                  <Paper
-                    elevation={0}
-                    sx={{ border: '1px solid rgba(15,23,42,0.07)', borderRadius: 2.5, overflow: 'hidden' }}
-                  >
-                    <Box
-                      sx={{
-                        px: 2.5,
-                        py: 1.75,
-                        borderBottom: '1px solid rgba(15,23,42,0.07)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                      }}
-                    >
-                      <Typography sx={{ fontWeight: 700, fontSize: 15 }}>プロジェクト</Typography>
-                      <Stack direction="row" spacing={0.5}>
-                        {isAdmin && (
-                          <Button
-                            size="small"
-                            startIcon={<AddIcon sx={{ fontSize: 14 }} />}
-                            onClick={() => setProjectDialogOpen(true)}
-                            sx={{ fontSize: 12, py: 0.25, px: 1, color: '#4F46E5' }}
-                          >
-                            作成
-                          </Button>
-                        )}
-                        <Button
-                          size="small"
-                          endIcon={<ArrowForwardIcon sx={{ fontSize: 14 }} />}
-                          onClick={() => navigate('/projects')}
-                          sx={{ fontSize: 12, py: 0.25, px: 1 }}
-                        >
-                          すべて見る
-                        </Button>
-                      </Stack>
-                    </Box>
-                    <Box sx={{ p: 2 }}>
-                      <Stack spacing={1}>
-                        {activeProjectList.slice(0, 5).map((project) => (
-                          <Box
-                            key={project.id}
-                            onClick={() => navigate(`/projects/${project.id}`)}
-                            sx={{
-                              px: 1.5,
-                              py: 1.25,
-                              borderRadius: 1.5,
-                              cursor: 'pointer',
-                              transition: 'all 0.15s',
-                              '&:hover': {
-                                bgcolor: alpha('#4F46E5', 0.05),
-                              },
-                            }}
-                          >
-                            <Box display="flex" alignItems="center" gap={1.5}>
-                              <Box
-                                sx={{
-                                  width: 8,
-                                  height: 8,
-                                  borderRadius: '50%',
-                                  bgcolor: '#4F46E5',
-                                  flexShrink: 0,
-                                }}
-                              />
-                              <Box flex={1} minWidth={0}>
-                                <Typography sx={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }} noWrap>
-                                  {project.name}
-                                </Typography>
-                                {project.description && (
-                                  <Typography sx={{ fontSize: 11, color: '#94A3B8' }} noWrap>
-                                    {project.description}
-                                  </Typography>
-                                )}
-                              </Box>
-                              <ArrowForwardIcon sx={{ fontSize: 14, color: '#CBD5E1' }} />
-                            </Box>
-                          </Box>
-                        ))}
-                        {activeProjectList.length === 0 && (
-                          <Typography sx={{ fontSize: 13, color: '#94A3B8', textAlign: 'center', py: 2 }}>
-                            対応中のプロジェクトはありません。
-                          </Typography>
-                        )}
-                      </Stack>
-                    </Box>
-                  </Paper>
-
-                  {/* Members */}
-                  <Paper
-                    elevation={0}
-                    sx={{ border: '1px solid rgba(15,23,42,0.07)', borderRadius: 2.5, overflow: 'hidden' }}
-                  >
-                    <Box
-                      sx={{
-                        px: 2.5,
-                        py: 1.75,
-                        borderBottom: '1px solid rgba(15,23,42,0.07)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                      }}
-                    >
-                      <Typography sx={{ fontWeight: 700, fontSize: 15 }}>メンバー</Typography>
-                      <Button
-                        size="small"
-                        endIcon={<ArrowForwardIcon sx={{ fontSize: 14 }} />}
-                        onClick={() => navigate('/members')}
-                        sx={{ fontSize: 12, py: 0.25, px: 1 }}
-                      >
-                        すべて見る
-                      </Button>
-                    </Box>
-                    <Box sx={{ p: 2 }}>
-                      <Stack spacing={0.75}>
-                        {activeMemberList.slice(0, 6).map((m) => (
-                          <Box
-                            key={m.id}
-                            sx={{
-                              px: 1.5,
-                              py: 1,
-                              borderRadius: 1.5,
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 1.5,
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                width: 30,
-                                height: 30,
-                                borderRadius: '50%',
-                                bgcolor: alpha('#4F46E5', 0.12),
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: 12,
-                                fontWeight: 700,
-                                color: '#4F46E5',
-                                flexShrink: 0,
-                              }}
-                            >
-                              {(m.user.display_name || m.user.username)[0]?.toUpperCase()}
-                            </Box>
-                            <Box flex={1} minWidth={0}>
-                              <Typography sx={{ fontSize: 13, fontWeight: 500 }} noWrap>
-                                {m.user.display_name || m.user.username}
-                              </Typography>
-                            </Box>
-                            <Chip
-                              size="small"
-                              label={m.role === 'owner' ? 'オーナー' : 'メンバー'}
-                              variant="outlined"
-                              sx={{ height: 20, fontSize: 10 }}
-                            />
-                          </Box>
-                        ))}
-                        {activeMemberList.length === 0 && (
-                          <Typography sx={{ fontSize: 13, color: '#94A3B8', textAlign: 'center', py: 2 }}>
-                            対応中のメンバーはいません。
-                          </Typography>
-                        )}
-                      </Stack>
-                    </Box>
-                  </Paper>
+                  <ActiveProjectsPanel
+                    projects={activeProjectList}
+                    isAdmin={isAdmin}
+                    onCreate={() => setProjectDialogOpen(true)}
+                    onViewAll={() => navigate('/projects')}
+                    onSelect={(id) => navigate(`/projects/${id}`)}
+                  />
+                  <ActiveMembersPanel
+                    members={activeMemberList}
+                    onViewAll={() => navigate('/members')}
+                  />
                 </Stack>
               </Grid>
             </Grid>
 
-            {/* Task progress summary */}
-            {teamTaskList.length > 0 && (
-              <Paper
-                elevation={0}
-                sx={{ border: '1px solid rgba(15,23,42,0.07)', borderRadius: 2.5, p: 2.5 }}
-              >
-                <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 2 }}>タスク進捗</Typography>
-                <Box sx={{ display: 'flex', gap: 0, borderRadius: 1.5, overflow: 'hidden', height: 8 }}>
-                  {Object.keys(STATUS_COLORS).map((s) => {
-                    const count = teamTaskList.filter((t) => t.status === s).length
-                    const pct = teamTaskList.length ? (count / teamTaskList.length) * 100 : 0
-                    return pct > 0 ? (
-                      <Box key={s} sx={{ flex: `0 0 ${pct}%`, bgcolor: STATUS_COLORS[s] }} />
-                    ) : null
-                  })}
-                </Box>
-                <Divider sx={{ my: 1.5 }} />
-                <Box display="flex" flexWrap="wrap" gap={2}>
-                  {STATUS_LEGEND.map(({ key, label, color }) => {
-                    const count = teamTaskList.filter((t) => t.status === key).length
-                    return (
-                      <Box key={key} display="flex" alignItems="center" gap={0.75}>
-                        <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: color }} />
-                        <Typography sx={{ fontSize: 12, color: '#64748B' }}>
-                          {label}: <strong>{count}</strong>
-                        </Typography>
-                      </Box>
-                    )
-                  })}
-                </Box>
-              </Paper>
-            )}
+            <TaskProgressSummary tasks={teamTaskList} />
           </Stack>
         )}
       </Container>

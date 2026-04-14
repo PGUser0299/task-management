@@ -17,8 +17,9 @@ import PersonIcon from '@mui/icons-material/Person'
 import AddIcon from '@mui/icons-material/Add'
 import { useQuery } from '@tanstack/react-query'
 import { useApiClient } from '../lib/apiClient'
+import { useMe } from '../lib/queries'
 import { MemberAddDialog } from '../components/members/MemberAddDialog'
-import type { Team, TeamMember, Me } from '../types'
+import type { Team, TeamMember } from '../types'
 
 type MemberUser = {
   id: number
@@ -42,14 +43,7 @@ export const MembersPage: React.FC = () => {
   const [selectedTeamId, setSelectedTeamId] = React.useState<number | null>(null)
   const [dialogOpen, setDialogOpen] = React.useState(false)
 
-  const { data: me } = useQuery<Me>({
-    queryKey: ['me'],
-    queryFn: async () => {
-      const res = await api.get('/auth/me/')
-      return res.data
-    },
-    staleTime: 1000 * 60 * 5,
-  })
+  const { data: me } = useMe()
   const isAdmin = !!me?.is_admin
 
   const { data: teams, isLoading: teamsLoading } = useQuery<Team[]>({

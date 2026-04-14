@@ -18,7 +18,12 @@ import { useQuery } from '@tanstack/react-query'
 import { useApiClient } from '../lib/apiClient'
 import { TaskCreateDialog } from '../components/tasks/TaskCreateDialog'
 import { TaskDetailDrawer } from '../components/tasks/TaskDetailDrawer'
-import type { Task, TaskStatus, TaskPriority } from '../types'
+import {
+  PRIORITY_CHIP_COLORS,
+  PRIORITY_DOT_COLORS,
+  PRIORITY_LABELS,
+} from '../components/tasks/taskConstants'
+import type { Task, TaskStatus } from '../types'
 
 const statusColumns: { key: TaskStatus; label: string; accent: string; bg: string }[] = [
   { key: 'pending', label: 'Pending', accent: '#94A3B8', bg: 'rgba(148,163,184,0.08)' },
@@ -26,23 +31,6 @@ const statusColumns: { key: TaskStatus; label: string; accent: string; bg: strin
   { key: 'in_progress', label: 'In Progress', accent: '#4F46E5', bg: 'rgba(79,70,229,0.08)' },
   { key: 'done', label: 'Done', accent: '#10B981', bg: 'rgba(16,185,129,0.08)' },
 ]
-
-const priorityConfig: Record<
-  TaskPriority,
-  { color: 'default' | 'success' | 'warning' | 'error'; label: string }
-> = {
-  low: { color: 'default', label: '低' },
-  medium: { color: 'success', label: '中' },
-  high: { color: 'warning', label: '高' },
-  urgent: { color: 'error', label: '緊急' },
-}
-
-const PRIORITY_DOT_COLOR: Record<string, string> = {
-  urgent: '#EF4444',
-  high: '#F59E0B',
-  medium: '#10B981',
-  low: '#94A3B8',
-}
 
 export const ProjectTasksPage: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>()
@@ -198,7 +186,7 @@ export const ProjectTasksPage: React.FC = () => {
                             height: 6,
                             borderRadius: '50%',
                             mt: 0.75,
-                            bgcolor: PRIORITY_DOT_COLOR[task.priority] ?? '#94A3B8',
+                            bgcolor: PRIORITY_DOT_COLORS[task.priority] ?? '#94A3B8',
                             flexShrink: 0,
                           }}
                         />
@@ -243,8 +231,8 @@ export const ProjectTasksPage: React.FC = () => {
                       <Box display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={0.5}>
                         <Chip
                           size="small"
-                          label={priorityConfig[task.priority].label}
-                          color={priorityConfig[task.priority].color}
+                          label={PRIORITY_LABELS[task.priority]}
+                          color={PRIORITY_CHIP_COLORS[task.priority]}
                           sx={{ height: 18, fontSize: 10, '& .MuiChip-label': { px: 0.75 } }}
                         />
                         {task.due_date && (

@@ -45,7 +45,7 @@ TodoProject/
 │   ├── src/
 │   │   ├── components/    # 再利用可能コンポーネント
 │   │   ├── screens/       # ページコンポーネント
-│   │   ├── lib/           # ユーティリティ（apiClient, apiError）
+│   │   ├── lib/           # ユーティリティ（apiClient, apiError, queries）
 │   │   ├── state/         # AuthContext
 │   │   ├── types/         # 共通型定義
 │   │   └── router.tsx     # ルーティング定義

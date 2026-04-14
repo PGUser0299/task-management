@@ -17,19 +17,13 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import CloseIcon from '@mui/icons-material/Close'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useApiClient } from '../../lib/apiClient'
+import { PRIORITY_OPTIONS } from './taskConstants'
 
 type Props = {
   projectId: number
   open: boolean
   onClose: () => void
 }
-
-const priorityOptions = [
-  { value: 'low', label: '低 (Low)' },
-  { value: 'medium', label: '中 (Medium)' },
-  { value: 'high', label: '高 (High)' },
-  { value: 'urgent', label: '緊急 (Urgent)' },
-]
 
 export const TaskCreateDialog: React.FC<Props> = ({ projectId, open, onClose }) => {
   const api = useApiClient()
@@ -251,9 +245,9 @@ export const TaskCreateDialog: React.FC<Props> = ({ projectId, open, onClose }) 
                   onChange={(e) => setPriority(e.target.value)}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                 >
-                  {priorityOptions.map((opt) => (
+                  {PRIORITY_OPTIONS.map((opt) => (
                     <MenuItem key={opt.value} value={opt.value}>
-                      {opt.label}
+                      {opt.longLabel}
                     </MenuItem>
                   ))}
                 </TextField>
