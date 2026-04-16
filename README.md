@@ -8,13 +8,28 @@
 
 | 技術 | バージョン | 用途 |
 |---|---|---|
-| Python | 3.11+ | ランタイム |
+| Python | 3.12 | ランタイム |
 | Django | 5.2+ | Web フレームワーク |
 | Django REST Framework | 3.15+ | REST API |
 | djangorestframework-simplejwt | 5.3+ | JWT 認証 |
 | django-cors-headers | 4.4+ | CORS 設定 |
 | django-environ | 0.11+ | 環境変数管理 |
+| WhiteNoise | 6.7+ | 静的ファイル配信 |
+| Gunicorn | — | WSGI サーバー（本番） |
 | SQLite（開発）/ PostgreSQL（本番） | — | データベース |
+
+### インフラ
+
+| 技術 | 用途 |
+|---|---|
+| AWS ECS Fargate | バックエンドコンテナ実行 |
+| AWS ALB | ロードバランサー |
+| AWS RDS PostgreSQL | データベース（本番） |
+| AWS ECR | Docker イメージレジストリ |
+| AWS S3 | フロントエンド静的ホスティング |
+| AWS Secrets Manager | 機密情報管理 |
+| Terraform | インフラ定義 (IaC) |
+| Docker | コンテナ化 |
 
 ### フロントエンド
 
@@ -33,24 +48,29 @@
 ## プロジェクト構成
 
 ```
-TodoProject/
-├── backend/          # Django アプリケーション
-│   ├── config/       # プロジェクト設定・グローバル URL
-│   ├── users/        # ユーザー認証・チーム管理
-│   ├── tasks/        # プロジェクト・タスク管理
-│   ├── ai_assist/    # AI タスク支援
+task-management/
+├── backend/              # Django アプリケーション
+│   ├── config/           # プロジェクト設定・グローバル URL
+│   ├── users/            # ユーザー認証・チーム管理
+│   ├── tasks/            # プロジェクト・タスク管理
+│   ├── ai_assist/        # AI タスク支援
+│   ├── Dockerfile        # 本番用コンテナ定義
 │   ├── manage.py
 │   └── requirements.txt
-├── frontend/         # React アプリケーション
+├── frontend/             # React アプリケーション
 │   ├── src/
-│   │   ├── components/    # 再利用可能コンポーネント
-│   │   ├── screens/       # ページコンポーネント
-│   │   ├── lib/           # ユーティリティ（apiClient, apiError, queries）
-│   │   ├── state/         # AuthContext
-│   │   ├── types/         # 共通型定義
-│   │   └── router.tsx     # ルーティング定義
+│   │   ├── components/   # 再利用可能コンポーネント
+│   │   ├── screens/      # ページコンポーネント
+│   │   ├── lib/          # ユーティリティ（apiClient, apiError, queries）
+│   │   ├── state/        # AuthContext
+│   │   ├── types/        # 共通型定義
+│   │   └── router.tsx    # ルーティング定義
 │   ├── package.json
 │   └── tsconfig.json
+├── terraform/            # AWS インフラ定義 (Terraform)
+│   ├── *.tf              # VPC / ECS / ALB / RDS / S3 / ECR 等
+│   └── .terraform.lock.hcl
+├── command.md            # デプロイ手順書 (PowerShell)
 ├── 基本設計.md
 └── 詳細設計.md
 ```
@@ -61,7 +81,7 @@ TodoProject/
 
 ### 前提条件
 
-- Python 3.11 以上
+- Python 3.12 以上
 - Node.js 20 以上
 - npm 10 以上
 
@@ -231,15 +251,58 @@ npm run build
 
 ### バックエンド本番設定
 
-```bash
-# 静的ファイル収集
-python manage.py collectstatic
+本番環境は AWS ECS Fargate 上で Docker コンテナとして稼働する。
 
-# .env の本番設定
-DEBUG=False
-SECRET_KEY=<strong-random-key>
-ALLOWED_HOSTS=your-domain.com
-DATABASE_URL=postgresql://user:pass@host:5432/dbname
-CORS_ALLOW_ALL_ORIGINS=False
-CORS_ALLOWED_ORIGINS=https://your-domain.com
+```bash
+# Docker イメージビルド
+docker build -t task-management-backend:latest ./backend
+
+# ECR にログイン & push
+aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.ap-northeast-1.amazonaws.com
+docker tag task-management-backend:latest <ECR_URL>:latest
+docker push <ECR_URL>:latest
+
+# ECS サービス再デプロイ
+aws ecs update-service --cluster task-management-cluster --service task-management-backend-service --force-new-deployment
 ```
+
+環境変数は Terraform により自動設定される:
+- `SECRET_KEY` / `DATABASE_URL`: AWS Secrets Manager から注入
+- `ALLOWED_HOSTS` / `CORS_ALLOWED_ORIGINS`: ALB DNS 名 / S3 URL から自動設定
+- 静的ファイルは WhiteNoise ミドルウェアにより Gunicorn から直接配信
+
+---
+
+## AWS インフラ構築
+
+### 前提条件
+
+- AWS CLI（`aws configure` で IAM 認証情報設定済み）
+- Terraform 1.9 以上
+- Docker Desktop
+
+### 構築手順
+
+```bash
+cd terraform
+terraform init
+terraform plan
+terraform apply   # "yes" を入力
+
+# DB マイグレーション（ECS run-task で単発実行）
+# 詳細は command.md を参照
+```
+
+### 主要リソース
+
+| リソース | 説明 |
+|---|---|
+| VPC | 10.128.0.0/16, 2 AZ |
+| ECS Fargate | Django + Gunicorn コンテナ |
+| ALB | HTTP ロードバランサー |
+| RDS PostgreSQL | db.t4g.micro, 16.9 |
+| S3 | フロントエンド静的ホスティング |
+| ECR | Docker イメージレジストリ |
+| Secrets Manager | SECRET_KEY, DATABASE_URL |
+
+詳細なデプロイ手順は `command.md` を参照。

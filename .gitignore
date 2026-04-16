@@ -87,6 +87,13 @@ $RECYCLE.BIN/
 # ===== Claude Code (user-local settings) =====
 .claude/settings.local.json
 
+# ===== Terraform =====
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.*
+
 # ===== Misc =====
 # pip redirect ミスで生成されたファイル
 =*
+
+command.md
