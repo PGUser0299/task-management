@@ -1,7 +1,6 @@
-# ============================================================
 # Public route table
 # Internet → IGW → ALB (public_app subnets)
-# ============================================================
+
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
@@ -21,11 +20,10 @@ resource "aws_route_table_association" "public_app" {
   route_table_id = aws_route_table.public.id
 }
 
-# ============================================================
+
 # Private app route table
 # ALB → ECS (private_app subnets)
-# S3 Gateway endpoint のルートはエンドポイント作成時に自動追加される
-# ============================================================
+
 resource "aws_route_table" "private_app" {
   vpc_id = aws_vpc.main.id
 
@@ -40,11 +38,11 @@ resource "aws_route_table_association" "private_app" {
   route_table_id = aws_route_table.private_app.id
 }
 
-# ============================================================
+
 # Private DB route table
 # ECS → RDS (private_db subnets)
 # インターネットへの経路なし
-# ============================================================
+
 resource "aws_route_table" "private_db" {
   vpc_id = aws_vpc.main.id
 

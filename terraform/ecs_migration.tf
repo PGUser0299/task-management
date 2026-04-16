@@ -1,7 +1,6 @@
-# ============================================================
 # Migration Task Definition
 # 単発実行用: `aws ecs run-task` で呼び出して `python manage.py migrate`
-# ============================================================
+
 resource "aws_ecs_task_definition" "migrate" {
   family                   = "${var.project_name}-migrate"
   network_mode             = "awsvpc"

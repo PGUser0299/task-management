@@ -22,39 +22,39 @@ variable "availability_zones" {
   default     = ["ap-northeast-1a", "ap-northeast-1c"]
 }
 
-# ---------- Public subnets (ALB) ----------
+# Public subnets (ALB)
 variable "public_app_subnet_cidrs" {
   description = "CIDR blocks for public application subnets (one per AZ, used for ALB)"
   type        = list(string)
   default     = ["10.128.1.0/24", "10.128.2.0/24"]
 }
 
-# ---------- Private subnets (ECS) ----------
+# Private subnets (ECS将来用)
 variable "private_app_subnet_cidrs" {
   description = "CIDR blocks for private application subnets (one per AZ, used for ECS)"
   type        = list(string)
   default     = ["10.128.11.0/24", "10.128.12.0/24"]
 }
 
-# ---------- Private subnets (RDS) ----------
+# Private subnets (RDS)
 variable "private_db_subnet_cidrs" {
   description = "CIDR blocks for private DB subnets (one per AZ, used for RDS)"
   type        = list(string)
   default     = ["10.128.21.0/24", "10.128.22.0/24"]
 }
 
-# ============================================================
+
 # ECR
-# ============================================================
+
 variable "ecr_repository_name" {
   description = "ECR repository name for the backend image"
   type        = string
   default     = "task-management-backend"
 }
 
-# ============================================================
+
 # ECS
-# ============================================================
+
 variable "ecs_task_cpu" {
   description = "ECS Fargate task CPU units"
   type        = string
@@ -85,9 +85,36 @@ variable "backend_image_tag" {
   default     = "latest"
 }
 
-# ============================================================
-# RDS PostgreSQL (dev: 最小構成)
-# ============================================================
+
+# ECS Autoscaling
+
+variable "ecs_autoscaling_min" {
+  description = "Minimum number of ECS tasks"
+  type        = number
+  default     = 1 # dev
+}
+
+variable "ecs_autoscaling_max" {
+  description = "Maximum number of ECS tasks"
+  type        = number
+  default     = 2 # dev
+}
+
+variable "ecs_cpu_target" {
+  description = "Target CPU utilization for ECS autoscaling (percent)"
+  type        = number
+  default     = 70
+}
+
+variable "ecs_memory_target" {
+  description = "Target memory utilization for ECS autoscaling (percent)"
+  type        = number
+  default     = 75
+}
+
+
+# RDS PostgreSQL
+
 variable "db_engine_version" {
   description = "PostgreSQL engine version (must be available in target region — check with: aws rds describe-db-engine-versions --engine postgres)"
   type        = string
@@ -118,38 +145,13 @@ variable "db_master_username" {
   default     = "dbadmin"
 }
 
-# ============================================================
+
 # S3 (Frontend static hosting)
-# ============================================================
+
 variable "frontend_bucket_name" {
   description = "S3 bucket name for the frontend (must be globally unique). Leave empty to auto-generate from project name + account ID"
   type        = string
   default     = ""
 }
 
-# ============================================================
-# ECS Autoscaling
-# ============================================================
-variable "ecs_autoscaling_min" {
-  description = "Minimum number of ECS tasks"
-  type        = number
-  default     = 1 # dev
-}
 
-variable "ecs_autoscaling_max" {
-  description = "Maximum number of ECS tasks"
-  type        = number
-  default     = 2 # dev
-}
-
-variable "ecs_cpu_target" {
-  description = "Target CPU utilization for ECS autoscaling (percent)"
-  type        = number
-  default     = 70
-}
-
-variable "ecs_memory_target" {
-  description = "Target memory utilization for ECS autoscaling (percent)"
-  type        = number
-  default     = 75
-}

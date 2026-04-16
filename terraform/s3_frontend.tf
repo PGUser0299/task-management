@@ -8,9 +8,9 @@ locals {
   )
 }
 
-# ============================================================
+
 # S3 バケット (フロントエンド静的ファイル配信)
-# ============================================================
+
 resource "aws_s3_bucket" "frontend" {
   bucket = local.frontend_bucket_name
 
@@ -19,11 +19,11 @@ resource "aws_s3_bucket" "frontend" {
   })
 }
 
-# ============================================================
+
 # 静的ウェブサイトホスティング設定
 # SPA 用に error_document も index.html を指定
 # (React Router の client-side routing のため)
-# ============================================================
+
 resource "aws_s3_bucket_website_configuration" "frontend" {
   bucket = aws_s3_bucket.frontend.id
 
@@ -36,9 +36,9 @@ resource "aws_s3_bucket_website_configuration" "frontend" {
   }
 }
 
-# ============================================================
+
 # パブリックアクセスブロック解除 (S3 静的ウェブサイトとして直接公開)
-# ============================================================
+
 resource "aws_s3_bucket_public_access_block" "frontend" {
   bucket = aws_s3_bucket.frontend.id
 
@@ -48,9 +48,9 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
   restrict_public_buckets = false
 }
 
-# ============================================================
+
 # バケットポリシー (パブリック読み取り)
-# ============================================================
+
 resource "aws_s3_bucket_policy" "frontend" {
   bucket = aws_s3_bucket.frontend.id
   policy = jsonencode({

@@ -1,6 +1,5 @@
-# ============================================================
 # Django SECRET_KEY (ランダム生成)
-# ============================================================
+
 resource "random_password" "django_secret_key" {
   length  = 50
   special = true
@@ -11,7 +10,7 @@ resource "random_password" "django_secret_key" {
 resource "aws_secretsmanager_secret" "django_secret_key" {
   name                    = "${var.project_name}/django-secret-key"
   description             = "Django SECRET_KEY for ${var.project_name}"
-  recovery_window_in_days = 0 # 即時削除を許可 (本番は 7〜30 日推奨)
+  recovery_window_in_days = 0 # 即時削除を許可 (本番は 7〜30 日)
 
   tags = merge(local.common_tags, {
     Name = "${var.project_name}-django-secret-key"
@@ -23,18 +22,18 @@ resource "aws_secretsmanager_secret_version" "django_secret_key" {
   secret_string = random_password.django_secret_key.result
 }
 
-# ============================================================
-# Aurora master password (ランダム生成)
-# ============================================================
+
+# RDS master password (ランダム生成)
+
 resource "random_password" "db_master" {
   length  = 32
-  special = false # Aurora が許可しない特殊文字を回避
+  special = false # 特殊文字を回避
 }
 
-# ============================================================
+
 # DATABASE_URL
-# Aurora 作成後に構築し、ECS タスクへ環境変数として注入
-# ============================================================
+# RDS作成後に構築し、ECS タスクへ環境変数として注入
+
 resource "aws_secretsmanager_secret" "database_url" {
   name                    = "${var.project_name}/database-url"
   description             = "PostgreSQL DATABASE_URL for Django"

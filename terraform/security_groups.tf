@@ -1,7 +1,4 @@
-# ============================================================
 # Security Group 本体 (ルールは後述 — 循環参照を回避するため分離)
-# dev 向け: VPC Endpoint SG は削除 (Interface Endpoint を廃止したため)
-# ============================================================
 
 resource "aws_security_group" "alb" {
   name        = "${var.project_name}-sg-alb"
@@ -33,11 +30,10 @@ resource "aws_security_group" "db" {
   })
 }
 
-# ============================================================
+
 # ALB ルール
 #   Ingress : 80/443 from Internet
 #   Egress  : 8000 to ECS
-# ============================================================
 
 resource "aws_vpc_security_group_ingress_rule" "alb_http" {
   security_group_id = aws_security_group.alb.id
@@ -66,12 +62,11 @@ resource "aws_vpc_security_group_egress_rule" "alb_to_ecs" {
   referenced_security_group_id = aws_security_group.ecs.id
 }
 
-# ============================================================
+
 # ECS ルール
 #   Ingress : 8000 from ALB
 #   Egress  : 443 to Internet (ECR / CloudWatch Logs / Secrets Manager)
 #             5432 to RDS
-# ============================================================
 
 resource "aws_vpc_security_group_ingress_rule" "ecs_from_alb" {
   security_group_id            = aws_security_group.ecs.id
@@ -100,10 +95,9 @@ resource "aws_vpc_security_group_egress_rule" "ecs_to_db" {
   referenced_security_group_id = aws_security_group.db.id
 }
 
-# ============================================================
+
 # DB ルール
 #   Ingress : 5432 from ECS
-# ============================================================
 
 resource "aws_vpc_security_group_ingress_rule" "db_from_ecs" {
   security_group_id            = aws_security_group.db.id
