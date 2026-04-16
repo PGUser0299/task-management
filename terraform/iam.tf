@@ -1,6 +1,5 @@
-# ============================================================
 # ECS タスク用 AssumeRole ポリシー (共通)
-# ============================================================
+
 data "aws_iam_policy_document" "ecs_task_assume" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -11,12 +10,12 @@ data "aws_iam_policy_document" "ecs_task_assume" {
   }
 }
 
-# ============================================================
+
 # ECS Task Execution Role
-# コンテナ起動時に ECR からイメージを pull したり、
-# CloudWatch Logs にログを書き込んだり、
+# コンテナ起動時に ECR からイメージを pull 
+# CloudWatch Logs にログを書き込み
 # Secrets Manager からシークレットを取得するためのロール
-# ============================================================
+
 resource "aws_iam_role" "ecs_task_execution" {
   name               = "${var.project_name}-ecs-task-execution"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_assume.json
@@ -52,11 +51,10 @@ resource "aws_iam_role_policy" "ecs_task_execution_secrets" {
   })
 }
 
-# ============================================================
+
 # ECS Task Role
 # アプリケーションが AWS API を呼び出すためのロール
-# (現状は特に権限不要だが、将来 S3 upload 等で拡張可能)
-# ============================================================
+
 resource "aws_iam_role" "ecs_task" {
   name               = "${var.project_name}-ecs-task"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_assume.json

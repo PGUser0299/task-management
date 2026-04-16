@@ -1,6 +1,5 @@
-# ============================================================
 # CloudWatch Log Group (ECS タスクログの送信先)
-# ============================================================
+
 resource "aws_cloudwatch_log_group" "ecs_backend" {
   name              = "/ecs/${var.project_name}/backend"
   retention_in_days = 3 # dev: 短め
@@ -10,13 +9,13 @@ resource "aws_cloudwatch_log_group" "ecs_backend" {
   })
 }
 
-# ============================================================
+
 # ECS Cluster (Fargate)
-# ============================================================
+
 resource "aws_ecs_cluster" "main" {
   name = "${var.project_name}-cluster"
 
-  # dev: Container Insights 無効化 (カスタムメトリクス課金回避)
+  # dev: Container Insights 無効化
   setting {
     name  = "containerInsights"
     value = "disabled"
@@ -38,9 +37,9 @@ resource "aws_ecs_cluster_capacity_providers" "main" {
   }
 }
 
-# ============================================================
+
 # Task Definition (Backend = Django + Gunicorn)
-# ============================================================
+
 resource "aws_ecs_task_definition" "backend" {
   family                   = "${var.project_name}-backend"
   network_mode             = "awsvpc"
@@ -100,9 +99,9 @@ resource "aws_ecs_task_definition" "backend" {
   })
 }
 
-# ============================================================
+
 # ECS Service
-# ============================================================
+
 resource "aws_ecs_service" "backend" {
   name            = "${var.project_name}-backend-service"
   cluster         = aws_ecs_cluster.main.id
@@ -111,7 +110,6 @@ resource "aws_ecs_service" "backend" {
   launch_type     = "FARGATE"
 
   # dev: public サブネットに配置し、タスクに public IP を付与
-  # (VPC Interface Endpoint 廃止により ECR/Logs/Secrets は IGW 経由)
   network_configuration {
     subnets          = aws_subnet.public_app[*].id
     security_groups  = [aws_security_group.ecs.id]

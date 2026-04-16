@@ -1,6 +1,5 @@
-# ============================================================
 # Public subnets — ALB を配置 (Internet-facing)
-# ============================================================
+
 resource "aws_subnet" "public_app" {
   count             = length(var.availability_zones)
   vpc_id            = aws_vpc.main.id
@@ -16,9 +15,9 @@ resource "aws_subnet" "public_app" {
   })
 }
 
-# ============================================================
-# Private subnets — ECS を配置 (ALB から受信、RDS へ送信)
-# ============================================================
+
+# Private subnets — ECS(ALB から受信、RDS へ送信 将来用)
+
 resource "aws_subnet" "private_app" {
   count             = length(var.availability_zones)
   vpc_id            = aws_vpc.main.id
@@ -31,9 +30,9 @@ resource "aws_subnet" "private_app" {
   })
 }
 
-# ============================================================
-# Private subnets — RDS を配置 (ECS からのみ受信)
-# ============================================================
+
+# Private subnets — RDS(ECS からのみ受信)
+
 resource "aws_subnet" "private_db" {
   count             = length(var.availability_zones)
   vpc_id            = aws_vpc.main.id

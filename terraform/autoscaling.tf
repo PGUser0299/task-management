@@ -1,7 +1,5 @@
-# ============================================================
 # ECS サービスのターゲット追跡オートスケーリング
 # CPU / メモリ使用率を基準に task 数を自動調整
-# ============================================================
 
 resource "aws_appautoscaling_target" "ecs_backend" {
   max_capacity       = var.ecs_autoscaling_max

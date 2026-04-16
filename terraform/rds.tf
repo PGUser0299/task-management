@@ -1,6 +1,5 @@
-# ============================================================
 # DB サブネットグループ (private_db サブネットに RDS を配置)
-# ============================================================
+
 resource "aws_db_subnet_group" "main" {
   name       = "${lower(var.project_name)}-db-subnet-group"
   subnet_ids = aws_subnet.private_db[*].id
@@ -10,9 +9,9 @@ resource "aws_db_subnet_group" "main" {
   })
 }
 
-# ============================================================
-# RDS PostgreSQL (開発環境向け最小構成)
-# ============================================================
+
+# RDS PostgreSQL 
+
 resource "aws_db_instance" "main" {
   identifier = "${lower(var.project_name)}-db"
 

@@ -1,6 +1,5 @@
-# ============================================================
 # Application Load Balancer (public_app サブネットに配置)
-# ============================================================
+
 resource "aws_lb" "main" {
   name               = "${lower(var.project_name)}-alb"
   internal           = false
@@ -16,9 +15,9 @@ resource "aws_lb" "main" {
   })
 }
 
-# ============================================================
+
 # Target Group (ECS Fargate → target_type = ip)
-# ============================================================
+
 resource "aws_lb_target_group" "backend" {
   name        = "${lower(var.project_name)}-tg-backend"
   port        = var.ecs_container_port
@@ -45,9 +44,9 @@ resource "aws_lb_target_group" "backend" {
   })
 }
 
-# ============================================================
+
 # HTTP Listener (forward to target group)
-# ============================================================
+
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main.arn
   port              = 80
