@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt gunicorn
 
 COPY . .
 
-RUN python manage.py collectstatic --noinput || true
+RUN SECRET_KEY=build-placeholder python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
