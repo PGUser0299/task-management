@@ -305,4 +305,3 @@ terraform apply   # "yes" を入力
 | ECR | Docker イメージレジストリ |
 | Secrets Manager | SECRET_KEY, DATABASE_URL |
 
-詳細なデプロイ手順は `command.md` を参照。
