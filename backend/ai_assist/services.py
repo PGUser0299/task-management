@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import json
 import logging
+import anthropic
+
 from dataclasses import dataclass
 from datetime import date
 from typing import List, Optional
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
-
 from tasks.models import Task
 
 User = get_user_model()
@@ -93,8 +93,7 @@ class TaskAIService:
         api_key = getattr(settings, "ANTHROPIC_API_KEY", "")
         if not api_key:
             return None
-        import anthropic
-
+        
         return anthropic.Anthropic(api_key=api_key)
 
     # ------------------------------------------------------------------
