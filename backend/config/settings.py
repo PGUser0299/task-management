@@ -142,3 +142,7 @@ CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS")
 
 # Custom user model
 AUTH_USER_MODEL = "users.User"
+
+
+# Anthropic Claude API
+ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", default="")

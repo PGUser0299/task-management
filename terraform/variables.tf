@@ -146,6 +146,16 @@ variable "db_master_username" {
 }
 
 
+# Anthropic Claude API
+
+variable "anthropic_api_key" {
+  description = "Anthropic API key for AI task decomposition (obtain from https://console.anthropic.com/)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+
 # S3 (Frontend static hosting)
 
 variable "frontend_bucket_name" {

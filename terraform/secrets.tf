@@ -55,3 +55,21 @@ resource "aws_secretsmanager_secret_version" "database_url" {
     aws_db_instance.main.db_name,
   )
 }
+
+
+# Anthropic API Key
+
+resource "aws_secretsmanager_secret" "anthropic_api_key" {
+  name                    = "${var.project_name}/anthropic-api-key"
+  description             = "Anthropic Claude API key for AI task decomposition"
+  recovery_window_in_days = 0 # 即時削除を許可 (本番は 7〜30 日)
+
+  tags = merge(local.common_tags, {
+    Name = "${var.project_name}-anthropic-api-key"
+  })
+}
+
+resource "aws_secretsmanager_secret_version" "anthropic_api_key" {
+  secret_id     = aws_secretsmanager_secret.anthropic_api_key.id
+  secret_string = var.anthropic_api_key
+}

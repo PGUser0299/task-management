@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import {
   Box,
   Button,
+  Checkbox,
+  Chip,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -15,9 +17,16 @@ import {
 } from '@mui/material'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import CloseIcon from '@mui/icons-material/Close'
+import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useApiClient } from '../../lib/apiClient'
 import { PRIORITY_OPTIONS } from './taskConstants'
+
+type AiSubtask = {
+  title: string
+  estimate_minutes: number | null
+  enabled: boolean
+}
 
 type Props = {
   projectId: number
@@ -34,18 +43,39 @@ export const TaskCreateDialog: React.FC<Props> = ({ projectId, open, onClose }) 
   const [estimateDays, setEstimateDays] = useState<number | ''>('')
   const [aiInput, setAiInput] = useState('')
   const [aiLoading, setAiLoading] = useState(false)
+  const [aiSubtasks, setAiSubtasks] = useState<AiSubtask[]>([])
+  const [aiWarning, setAiWarning] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const createTask = useMutation({
     mutationFn: async () => {
-      const res = await api.post('/tasks/', {
+      // 1. Create the parent task
+      const parentRes = await api.post('/tasks/', {
         project: projectId,
         title,
         description,
         priority,
         estimate_minutes: estimateDays ? estimateDays * 8 * 60 : null,
       })
-      return res.data
+      const parentTask = parentRes.data as { id: number }
+
+      // 2. Create enabled subtasks in parallel
+      const enabledSubtasks = aiSubtasks.filter((s) => s.enabled)
+      if (enabledSubtasks.length > 0) {
+        await Promise.all(
+          enabledSubtasks.map((sub) =>
+            api.post('/tasks/', {
+              project: projectId,
+              title: sub.title,
+              priority,
+              estimate_minutes: sub.estimate_minutes,
+              parent_id: parentTask.id,
+            }),
+          ),
+        )
+      }
+
+      return parentTask
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', projectId] })
@@ -62,6 +92,8 @@ export const TaskCreateDialog: React.FC<Props> = ({ projectId, open, onClose }) 
     setPriority('medium')
     setEstimateDays('')
     setAiInput('')
+    setAiSubtasks([])
+    setAiWarning(null)
     setError(null)
     onClose()
   }
@@ -77,6 +109,8 @@ export const TaskCreateDialog: React.FC<Props> = ({ projectId, open, onClose }) 
         estimate_minutes: number | null
         priority: string
         subtasks: { title: string; estimate_minutes: number | null }[]
+        is_ai: boolean
+        ai_error: string | null
       }
       setTitle(data.title)
       setDescription(data.description)
@@ -86,6 +120,14 @@ export const TaskCreateDialog: React.FC<Props> = ({ projectId, open, onClose }) 
       if (data.priority) {
         setPriority(data.priority)
       }
+      setAiSubtasks(
+        (data.subtasks ?? []).map((s) => ({
+          title: s.title,
+          estimate_minutes: s.estimate_minutes,
+          enabled: true,
+        })),
+      )
+      setAiWarning(data.ai_error ?? null)
     } catch (e) {
       console.error(e)
       setError('AI によるタスク分解に失敗しました。')
@@ -94,9 +136,23 @@ export const TaskCreateDialog: React.FC<Props> = ({ projectId, open, onClose }) 
     }
   }
 
+  const toggleSubtask = (index: number) => {
+    setAiSubtasks((prev) =>
+      prev.map((s, i) => (i === index ? { ...s, enabled: !s.enabled } : s)),
+    )
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     createTask.mutate()
+  }
+
+  const formatMinutes = (minutes: number | null) => {
+    if (!minutes) return null
+    if (minutes < 60) return `${minutes}分`
+    const h = Math.floor(minutes / 60)
+    const m = minutes % 60
+    return m > 0 ? `${h}時間${m}分` : `${h}時間`
   }
 
   return (
@@ -195,6 +251,98 @@ export const TaskCreateDialog: React.FC<Props> = ({ projectId, open, onClose }) 
               </Button>
             </Stack>
           </Box>
+
+          {/* AI Warning */}
+          {aiWarning && (
+            <Box
+              sx={{
+                mb: 2,
+                px: 1.5,
+                py: 1,
+                borderRadius: 1.5,
+                bgcolor: 'rgba(245,158,11,0.08)',
+                border: '1px solid rgba(245,158,11,0.25)',
+              }}
+            >
+              <Typography sx={{ fontSize: 12, color: '#B45309' }}>
+                {aiWarning}
+              </Typography>
+            </Box>
+          )}
+
+          {/* AI Subtasks Preview */}
+          {aiSubtasks.length > 0 && (
+            <Box
+              sx={{
+                mb: 3,
+                p: 2,
+                borderRadius: 2,
+                bgcolor: alpha('#10B981', 0.04),
+                border: `1px solid ${alpha('#10B981', 0.15)}`,
+              }}
+            >
+              <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1.5 }}>
+                <Typography sx={{ fontWeight: 600, fontSize: 13, color: '#059669' }}>
+                  AI が提案するサブタスク ({aiSubtasks.filter((s) => s.enabled).length}/{aiSubtasks.length})
+                </Typography>
+                <Chip
+                  size="small"
+                  icon={<AccessTimeIcon sx={{ fontSize: 12 }} />}
+                  label={formatMinutes(
+                    aiSubtasks
+                      .filter((s) => s.enabled)
+                      .reduce((sum, s) => sum + (s.estimate_minutes ?? 0), 0),
+                  ) ?? '—'}
+                  sx={{ height: 22, fontSize: 11, bgcolor: alpha('#10B981', 0.1), color: '#059669' }}
+                />
+              </Stack>
+              <Stack spacing={0.5}>
+                {aiSubtasks.map((sub, idx) => (
+                  <Stack
+                    key={idx}
+                    direction="row"
+                    alignItems="center"
+                    spacing={0.5}
+                    sx={{
+                      py: 0.5,
+                      px: 1,
+                      borderRadius: 1.5,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                      '&:hover': { bgcolor: alpha('#10B981', 0.06) },
+                      opacity: sub.enabled ? 1 : 0.45,
+                    }}
+                    onClick={() => toggleSubtask(idx)}
+                  >
+                    <Checkbox
+                      checked={sub.enabled}
+                      size="small"
+                      sx={{
+                        p: 0.25,
+                        color: '#94A3B8',
+                        '&.Mui-checked': { color: '#10B981' },
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        fontSize: 13,
+                        color: '#1E293B',
+                        flex: 1,
+                        textDecoration: sub.enabled ? 'none' : 'line-through',
+                      }}
+                    >
+                      {sub.title}
+                    </Typography>
+                    {sub.estimate_minutes != null && (
+                      <Typography sx={{ fontSize: 11, color: '#94A3B8', flexShrink: 0 }}>
+                        {formatMinutes(sub.estimate_minutes)}
+                      </Typography>
+                    )}
+                  </Stack>
+                ))}
+              </Stack>
+            </Box>
+          )}
 
           <Divider sx={{ mb: 2.5 }}>
             <Typography sx={{ fontSize: 11, color: '#CBD5E1', px: 1 }}>タスク詳細</Typography>
@@ -304,7 +452,11 @@ export const TaskCreateDialog: React.FC<Props> = ({ projectId, open, onClose }) 
                 px: 3,
               }}
             >
-              {createTask.isPending ? '作成中...' : 'タスクを作成'}
+              {createTask.isPending
+                ? '作成中...'
+                : aiSubtasks.filter((s) => s.enabled).length > 0
+                  ? `タスクを作成 (+ サブタスク ${aiSubtasks.filter((s) => s.enabled).length}件)`
+                  : 'タスクを作成'}
             </Button>
           </Stack>
         </Box>

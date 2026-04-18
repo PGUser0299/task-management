@@ -31,7 +31,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_managed" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# Secrets Manager から SECRET_KEY / DATABASE_URL を取得する権限
+# Secrets Manager から SECRET_KEY / DATABASE_URL / ANTHROPIC_API_KEY を取得する権限
 resource "aws_iam_role_policy" "ecs_task_execution_secrets" {
   name = "${var.project_name}-ecs-task-execution-secrets"
   role = aws_iam_role.ecs_task_execution.id
@@ -46,6 +46,7 @@ resource "aws_iam_role_policy" "ecs_task_execution_secrets" {
       Resource = [
         aws_secretsmanager_secret.django_secret_key.arn,
         aws_secretsmanager_secret.database_url.arn,
+        aws_secretsmanager_secret.anthropic_api_key.arn,
       ]
     }]
   })
