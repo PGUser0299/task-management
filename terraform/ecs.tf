@@ -81,6 +81,10 @@ resource "aws_ecs_task_definition" "backend" {
           name      = "DATABASE_URL"
           valueFrom = aws_secretsmanager_secret.database_url.arn
         },
+        {
+          name      = "ANTHROPIC_API_KEY"
+          valueFrom = aws_secretsmanager_secret.anthropic_api_key.arn
+        },
       ]
 
       logConfiguration = {

@@ -16,6 +16,8 @@ class ParseTaskResponseSerializer(serializers.Serializer):
     estimate_minutes = serializers.IntegerField(required=False, allow_null=True)
     priority = serializers.CharField()
     subtasks = SubtaskSuggestionSerializer(many=True)
+    is_ai = serializers.BooleanField(default=False)
+    ai_error = serializers.CharField(required=False, allow_null=True)
 
 
 class SuggestTodayRequestSerializer(serializers.Serializer):

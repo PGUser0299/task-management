@@ -34,6 +34,8 @@ class ParseTaskView(APIView):
                     }
                     for s in result.subtasks
                 ],
+                "is_ai": result.is_ai,
+                "ai_error": result.ai_error,
             }
         )
         return Response(response_serializer.data, status=status.HTTP_200_OK)

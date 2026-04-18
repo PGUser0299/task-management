@@ -15,6 +15,7 @@
 | django-cors-headers | 4.4+ | CORS 設定 |
 | django-environ | 0.11+ | 環境変数管理 |
 | WhiteNoise | 6.7+ | 静的ファイル配信 |
+| Anthropic SDK | 0.92+ | Claude API（AI タスク分解） |
 | Gunicorn | — | WSGI サーバー（本番） |
 | SQLite（開発）/ PostgreSQL（本番） | — | データベース |
 
@@ -122,9 +123,11 @@ DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 DATABASE_URL=sqlite:///db.sqlite3
 CORS_ALLOW_ALL_ORIGINS=True
+ANTHROPIC_API_KEY=your-anthropic-api-key-here
 ```
 
-本番環境では `DEBUG=False`、`CORS_ALLOW_ALL_ORIGINS=False`、`CORS_ALLOWED_ORIGINS=https://your-domain.com` に変更すること。
+- 本番環境では `DEBUG=False`、`CORS_ALLOW_ALL_ORIGINS=False`、`CORS_ALLOWED_ORIGINS=https://your-domain.com` に変更すること。
+- `ANTHROPIC_API_KEY` は [Anthropic Console](https://console.anthropic.com/) で取得する。未設定の場合、AI タスク分解はヒューリスティックにフォールバックする。
 
 #### スーパーユーザー作成（任意）
 
@@ -196,7 +199,7 @@ npm run dev
 | プロジェクト管理 | チームごとのプロジェクト作成（管理者グループ所属者のみ）・一覧表示 |
 | カンバンボード | Pending / To Do / In Progress / Done の 4列。タスクカードのクリックで詳細ドロワーを表示 |
 | タスク管理 | ステータス・優先度・担当者・期限・見積の設定。サブタスクの追加・担当者アサイン |
-| AI タスク分解 | 自然言語テキストからタスク・サブタスク・優先度・見積を自動生成 |
+| AI タスク分解 | Claude API（Sonnet 4.6）で自然言語テキストからタスク・サブタスク・優先度・見積を自動生成。API 未設定時はヒューリスティックにフォールバック |
 | AI サジェスト | 今日フォーカスすべきタスクを優先度・期限に基づいて提案 |
 | ダッシュボード | チーム別のスタットカード・進行中プロジェクト・進行中メンバー・AI サジェスト表示 |
 

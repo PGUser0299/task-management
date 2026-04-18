@@ -98,3 +98,4 @@ terraform/terraform.tfstate.*
 
 command.md
 
+design/
