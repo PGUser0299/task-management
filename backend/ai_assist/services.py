@@ -96,10 +96,7 @@ class TaskAIService:
         
         return anthropic.Anthropic(api_key=api_key)
 
-    # ------------------------------------------------------------------
     # parse_task_description
-    # ------------------------------------------------------------------
-
     def parse_task_description(self, text: str) -> ParsedTaskSuggestion:
         client = self._get_client()
         if client is None:
@@ -178,10 +175,8 @@ class TaskAIService:
             priority=data.get("priority", self.DEFAULT_PRIORITY),
         )
 
-    # ------------------------------------------------------------------
-    # Heuristic fallback (そのままの状態で追加する。LLMが使えない場合の簡易解析。)
-    # ------------------------------------------------------------------
 
+    # Heuristic fallback (そのままの状態で追加する。LLMが使えない場合の簡易解析。)
     def _parse_heuristic(self, text: str) -> ParsedTaskSuggestion:
         normalized = text.strip()
 
@@ -215,10 +210,8 @@ class TaskAIService:
             priority=priority,
         )
 
-    # ------------------------------------------------------------------
-    # suggest_today_tasks 
-    # ------------------------------------------------------------------
 
+    # suggest_today_tasks 
     def suggest_today_tasks(
         self,
         user: User,
