@@ -69,7 +69,11 @@ task-management/
 │   ├── package.json
 │   └── tsconfig.json
 ├── terraform/            # AWS インフラ定義 (Terraform)
-│   ├── *.tf              # VPC / ECS / ALB / RDS / S3 / ECR 等
+│   ├── modules              
+│   │   └── *.tf          # VPC / ECS / ALB / RDS / S3 / ECR 等
+│   ├── outputs.tf
+│   ├── main.tf
+│   ├── variables.tf
 │   └── .terraform.lock.hcl
 ├── command.md            # デプロイ手順書 (PowerShell)
 ├── 基本設計.md
