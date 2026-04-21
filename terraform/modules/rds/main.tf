@@ -1,16 +1,24 @@
+# RDS master password (ランダム生成)
+
+resource "random_password" "db_master" {
+  length  = 32
+  special = false # 特殊文字を回避
+}
+
+
 # DB サブネットグループ (private_db サブネットに RDS を配置)
 
 resource "aws_db_subnet_group" "main" {
   name       = "${lower(var.project_name)}-db-subnet-group"
-  subnet_ids = aws_subnet.private_db[*].id
+  subnet_ids = var.subnet_ids
 
-  tags = merge(local.common_tags, {
+  tags = merge(var.common_tags, {
     Name = "${var.project_name}-db-subnet-group"
   })
 }
 
 
-# RDS PostgreSQL 
+# RDS PostgreSQL
 
 resource "aws_db_instance" "main" {
   identifier = "${lower(var.project_name)}-db"
@@ -29,7 +37,7 @@ resource "aws_db_instance" "main" {
   password = random_password.db_master.result
 
   db_subnet_group_name   = aws_db_subnet_group.main.name
-  vpc_security_group_ids = [aws_security_group.db.id]
+  vpc_security_group_ids = [var.security_group_id]
   publicly_accessible    = false
   multi_az               = false # dev: 単一 AZ
 
@@ -49,7 +57,7 @@ resource "aws_db_instance" "main" {
 
   apply_immediately = true
 
-  tags = merge(local.common_tags, {
+  tags = merge(var.common_tags, {
     Name = "${var.project_name}-db"
   })
 

@@ -2,7 +2,7 @@ data "aws_caller_identity" "current" {}
 
 locals {
   # バケット名未指定時は project_name + account ID で自動生成
-  frontend_bucket_name = coalesce(
+  bucket_name = coalesce(
     var.frontend_bucket_name != "" ? var.frontend_bucket_name : null,
     "${lower(var.project_name)}-frontend-${data.aws_caller_identity.current.account_id}",
   )
@@ -12,9 +12,9 @@ locals {
 # S3 バケット (フロントエンド静的ファイル配信)
 
 resource "aws_s3_bucket" "frontend" {
-  bucket = local.frontend_bucket_name
+  bucket = local.bucket_name
 
-  tags = merge(local.common_tags, {
+  tags = merge(var.common_tags, {
     Name = "${var.project_name}-frontend"
   })
 }

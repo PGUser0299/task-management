@@ -12,7 +12,7 @@ data "aws_iam_policy_document" "ecs_task_assume" {
 
 
 # ECS Task Execution Role
-# コンテナ起動時に ECR からイメージを pull 
+# コンテナ起動時に ECR からイメージを pull
 # CloudWatch Logs にログを書き込み
 # Secrets Manager からシークレットを取得するためのロール
 
@@ -20,7 +20,7 @@ resource "aws_iam_role" "ecs_task_execution" {
   name               = "${var.project_name}-ecs-task-execution"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_assume.json
 
-  tags = merge(local.common_tags, {
+  tags = merge(var.common_tags, {
     Name = "${var.project_name}-ecs-task-execution"
   })
 }
@@ -43,11 +43,7 @@ resource "aws_iam_role_policy" "ecs_task_execution_secrets" {
       Action = [
         "secretsmanager:GetSecretValue",
       ]
-      Resource = [
-        aws_secretsmanager_secret.django_secret_key.arn,
-        aws_secretsmanager_secret.database_url.arn,
-        aws_secretsmanager_secret.anthropic_api_key.arn,
-      ]
+      Resource = var.secret_arns
     }]
   })
 }
@@ -60,7 +56,7 @@ resource "aws_iam_role" "ecs_task" {
   name               = "${var.project_name}-ecs-task"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_assume.json
 
-  tags = merge(local.common_tags, {
+  tags = merge(var.common_tags, {
     Name = "${var.project_name}-ecs-task"
   })
 }

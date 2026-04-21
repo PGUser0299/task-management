@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "backend" {
-  name                 = var.ecr_repository_name
+  name                 = var.repository_name
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -10,8 +10,8 @@ resource "aws_ecr_repository" "backend" {
     encryption_type = "AES256"
   }
 
-  tags = merge(local.common_tags, {
-    Name = var.ecr_repository_name
+  tags = merge(var.common_tags, {
+    Name = var.repository_name
   })
 }
 

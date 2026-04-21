@@ -91,6 +91,7 @@ $RECYCLE.BIN/
 terraform/.terraform/
 terraform/terraform.tfstate
 terraform/terraform.tfstate.*
+terraform/terraform.tfvars.*
 
 # ===== Misc =====
 # pip redirect ミスで生成されたファイル

@@ -12,7 +12,7 @@ resource "aws_secretsmanager_secret" "django_secret_key" {
   description             = "Django SECRET_KEY for ${var.project_name}"
   recovery_window_in_days = 0 # 即時削除を許可 (本番は 7〜30 日)
 
-  tags = merge(local.common_tags, {
+  tags = merge(var.common_tags, {
     Name = "${var.project_name}-django-secret-key"
   })
 }
@@ -20,14 +20,6 @@ resource "aws_secretsmanager_secret" "django_secret_key" {
 resource "aws_secretsmanager_secret_version" "django_secret_key" {
   secret_id     = aws_secretsmanager_secret.django_secret_key.id
   secret_string = random_password.django_secret_key.result
-}
-
-
-# RDS master password (ランダム生成)
-
-resource "random_password" "db_master" {
-  length  = 32
-  special = false # 特殊文字を回避
 }
 
 
@@ -39,7 +31,7 @@ resource "aws_secretsmanager_secret" "database_url" {
   description             = "PostgreSQL DATABASE_URL for Django"
   recovery_window_in_days = 0
 
-  tags = merge(local.common_tags, {
+  tags = merge(var.common_tags, {
     Name = "${var.project_name}-database-url"
   })
 }
@@ -48,11 +40,11 @@ resource "aws_secretsmanager_secret_version" "database_url" {
   secret_id = aws_secretsmanager_secret.database_url.id
   secret_string = format(
     "postgres://%s:%s@%s:%d/%s",
-    aws_db_instance.main.username,
-    random_password.db_master.result,
-    aws_db_instance.main.address,
-    aws_db_instance.main.port,
-    aws_db_instance.main.db_name,
+    var.db_username,
+    var.db_password,
+    var.db_address,
+    var.db_port,
+    var.db_name,
   )
 }
 
@@ -64,7 +56,7 @@ resource "aws_secretsmanager_secret" "anthropic_api_key" {
   description             = "Anthropic Claude API key for AI task decomposition"
   recovery_window_in_days = 0 # 即時削除を許可 (本番は 7〜30 日)
 
-  tags = merge(local.common_tags, {
+  tags = merge(var.common_tags, {
     Name = "${var.project_name}-anthropic-api-key"
   })
 }
