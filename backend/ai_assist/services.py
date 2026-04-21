@@ -32,7 +32,7 @@ class ParsedTaskSuggestion:
     ai_error: Optional[str] = None
 
 
-# JSON Schema for Claude structured output
+# Anthropic API用のJSON Schema定義。
 _PARSE_TASK_SCHEMA = {
     "type": "object",
     "properties": {
@@ -79,24 +79,15 @@ _PARSE_TASK_SCHEMA = {
 
 
 class TaskAIService:
-    """
-    AI task decomposition service.
-
-    Uses the Anthropic Claude API when ANTHROPIC_API_KEY is configured.
-    Falls back to simple heuristics otherwise.
-    """
-
     DEFAULT_PRIORITY = "medium"
 
     def _get_client(self):
-        """Return an Anthropic client if the API key is configured."""
         api_key = getattr(settings, "ANTHROPIC_API_KEY", "")
         if not api_key:
             return None
         
         return anthropic.Anthropic(api_key=api_key)
 
-    # parse_task_description
     def parse_task_description(self, text: str) -> ParsedTaskSuggestion:
         client = self._get_client()
         if client is None:
@@ -155,7 +146,7 @@ class TaskAIService:
             },
         )
 
-        # Extract JSON from the first text block
+        # JSON Schemaに従って構造化されたテキストを抽出
         raw = next(b.text for b in response.content if b.type == "text")
         data = json.loads(raw)
 
@@ -176,7 +167,7 @@ class TaskAIService:
         )
 
 
-    # Heuristic fallback (そのままの状態で追加する。LLMが使えない場合の簡易解析。)
+    # Heuristic fallback (そのままの入力状態でタスク分解する。LLMが使えない場合の簡易処理。)
     def _parse_heuristic(self, text: str) -> ParsedTaskSuggestion:
         normalized = text.strip()
 
@@ -211,7 +202,6 @@ class TaskAIService:
         )
 
 
-    # suggest_today_tasks 
     def suggest_today_tasks(
         self,
         user: User,
@@ -264,7 +254,7 @@ class TaskAIService:
                 reason_parts.append(f"優先度が {task.priority} に設定されています。")
 
             if not reason_parts:
-                reason_parts.append("進行中または未着手のタスクの中からバランスよく選ばれました。")
+                reason_parts.append("進行中または未着手のタスクの中から選ばれました。")
 
             items.append(
                 {

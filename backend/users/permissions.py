@@ -4,8 +4,8 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 ADMIN_GROUP_NAME = "管理者"
 
 
+# 管理者グループのメンバーであれば全ての操作を許可。
 def is_admin_group_member(user) -> bool:
-    """管理者グループ所属（またはスーパーユーザー）であるかを判定する。"""
     if not user or not user.is_authenticated:
         return False
     if user.is_superuser:
@@ -14,8 +14,6 @@ def is_admin_group_member(user) -> bool:
 
 
 class IsAdminGroupMemberForWrite(BasePermission):
-    """参照系は認証済みなら許可、更新系は管理者グループ所属者のみ許可する。"""
-
     message = "この操作は管理者グループのメンバーのみ実行できます。"
 
     def has_permission(self, request, view) -> bool:

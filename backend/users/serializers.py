@@ -14,9 +14,8 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "is_superuser"]
 
 
+# `/auth/me/` 向け。管理者グループ所属フラグを含む。
 class MeSerializer(serializers.ModelSerializer):
-    """`/auth/me/` 向け。管理者グループ所属フラグを含む。"""
-
     is_admin = serializers.SerializerMethodField()
 
     class Meta:

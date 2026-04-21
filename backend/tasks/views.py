@@ -95,13 +95,6 @@ class TaskViewSet(viewsets.ModelViewSet):
 
 
 class TaskCommentViewSet(viewsets.ModelViewSet):
-    """
-    タスクコメントの CRUD エンドポイント。
-
-    - 作成は /api/tasks/{id}/comments/ (TaskViewSet.comments) を使用。
-    - このViewSetは既存コメントの取得・更新・削除に使用する。
-    """
-
     serializer_class = TaskCommentSerializer
     permission_classes = [IsAuthenticated, IsTeamMember]
     http_method_names = ["get", "patch", "delete", "head", "options"]

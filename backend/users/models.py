@@ -3,8 +3,6 @@ from django.db import models
 
 
 class User(AbstractUser):
-    """Custom user model with optional display name."""
-
     display_name = models.CharField(max_length=100, blank=True)
 
     def __str__(self) -> str:

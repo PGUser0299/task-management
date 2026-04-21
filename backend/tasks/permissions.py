@@ -3,15 +3,8 @@ from rest_framework.permissions import BasePermission
 from .models import Project, Task, TaskComment
 
 
+# 認証チェックのみ行う。create 時のチーム所属検証はシリアライザ側で実施する。
 class IsTeamMember(BasePermission):
-    """
-    Allow access only to users who belong to the team that owns the resource.
-
-    - has_permission: list/create などリスト操作は get_queryset でフィルタ済みのため
-      認証チェックのみ行う。create 時のチーム所属検証はシリアライザ側で実施する。
-    - has_object_permission: detail 操作では対象オブジェクトのチームを確認する。
-    """
-
     def has_permission(self, request, view) -> bool:
         return bool(request.user and request.user.is_authenticated)
 

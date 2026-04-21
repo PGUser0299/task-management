@@ -25,8 +25,8 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "description", "team", "team_id", "created_at", "updated_at"]
         read_only_fields = ["id", "team", "created_at", "updated_at"]
 
+    # リクエストユーザーが対象チームのメンバーであることを確認する。
     def validate_team_id(self, team):
-        """リクエストユーザーが対象チームのメンバーであることを確認する。"""
         request = self.context.get("request")
         if request and not team.memberships.filter(user=request.user).exists():
             raise serializers.ValidationError("このチームにプロジェクトを作成する権限がありません。")

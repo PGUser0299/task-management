@@ -94,7 +94,6 @@ class TeamMembershipViewSet(viewsets.ModelViewSet):
         return qs
 
     def _require_owner(self, team: Team) -> None:
-        """リクエストユーザーが対象チームのオーナーでなければ 403 を返す。"""
         is_owner = team.memberships.filter(
             user=self.request.user,
             role=TeamMembership.ROLE_OWNER,
