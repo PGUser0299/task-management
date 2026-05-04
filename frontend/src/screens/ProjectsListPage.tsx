@@ -8,7 +8,6 @@ import {
   Paper,
   Stack,
   Typography,
-  alpha,
 } from '@mui/material'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
@@ -39,22 +38,32 @@ export const ProjectsListPage: React.FC = () => {
   const projects = Array.isArray(data) ? data : []
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#F8FAFC' }}>
+    <Box sx={{ minHeight: '100vh' }}>
       {/* Header */}
       <Box
         sx={{
           px: { xs: 3, md: 4 },
           py: 3,
-          bgcolor: 'white',
-          borderBottom: '1px solid rgba(15,23,42,0.07)',
+          borderBottom: '1px solid var(--border-faint)',
+          bgcolor: 'var(--bg-header)',
+          backdropFilter: 'blur(12px)',
         }}
       >
-        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={2}>
+        <Stack
+          direction="row"
+          alignItems="flex-start"
+          justifyContent="space-between"
+          spacing={2}
+          sx={{ animation: 'fadeInUp 0.4s ease both' }}
+        >
           <Box>
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}
+            >
               プロジェクト
             </Typography>
-            <Typography sx={{ color: '#64748B', fontSize: 14, mt: 0.25 }}>
+            <Typography sx={{ color: 'var(--text-muted)', fontSize: 14, mt: 0.25 }}>
               すべてのプロジェクトを管理
             </Typography>
           </Box>
@@ -63,11 +72,7 @@ export const ProjectsListPage: React.FC = () => {
               variant="contained"
               startIcon={<AddIcon />}
               onClick={() => setDialogOpen(true)}
-              sx={{
-                background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                boxShadow: '0 2px 8px rgba(79,70,229,0.35)',
-                flexShrink: 0,
-              }}
+              sx={{ flexShrink: 0 }}
             >
               プロジェクト作成
             </Button>
@@ -86,12 +91,12 @@ export const ProjectsListPage: React.FC = () => {
           <Box
             sx={{
               p: 3,
-              borderRadius: 2,
-              bgcolor: 'rgba(239,68,68,0.05)',
-              border: '1px solid rgba(239,68,68,0.15)',
+              borderRadius: 2.5,
+              bgcolor: 'rgba(248, 113, 113, 0.05)',
+              border: '1px solid rgba(248, 113, 113, 0.15)',
             }}
           >
-            <Typography color="error" sx={{ fontSize: 14 }}>
+            <Typography sx={{ color: 'var(--error)', fontSize: 14 }}>
               プロジェクトの読み込みに失敗しました。
             </Typography>
           </Box>
@@ -107,6 +112,7 @@ export const ProjectsListPage: React.FC = () => {
                   flexDirection: 'column',
                   alignItems: 'center',
                   gap: 1.5,
+                  animation: 'fadeInUp 0.4s ease both',
                 }}
               >
                 <Box
@@ -114,57 +120,65 @@ export const ProjectsListPage: React.FC = () => {
                     width: 56,
                     height: 56,
                     borderRadius: 3,
-                    bgcolor: alpha('#4F46E5', 0.08),
+                    bgcolor: 'rgba(139, 92, 246, 0.08)',
+                    border: '1px solid rgba(139, 92, 246, 0.15)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <FolderOpenIcon sx={{ color: '#4F46E5', fontSize: 28 }} />
+                  <FolderOpenIcon sx={{ color: 'var(--accent-secondary)', fontSize: 28 }} />
                 </Box>
-                <Typography sx={{ fontWeight: 600, color: '#475569' }}>
+                <Typography sx={{ fontWeight: 600, color: 'var(--text-secondary)' }}>
                   プロジェクトがまだありません
                 </Typography>
-                <Typography sx={{ fontSize: 13, color: '#94A3B8' }}>
+                <Typography sx={{ fontSize: 13, color: 'var(--text-faint)' }}>
                   ダッシュボードのプロジェクトセクションから作成できます
                 </Typography>
               </Box>
             ) : (
               <Grid container spacing={2.5}>
-                {projects.map((p) => (
-                  <Grid item xs={12} sm={6} md={4} key={p.id}>
+                {projects.map((p, i) => (
+                  <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={4}
+                    key={p.id}
+                    sx={{ animation: `fadeInUp 0.4s ease ${i * 0.05}s both` }}
+                  >
                     <Paper
                       elevation={0}
                       onClick={() => navigate(`/projects/${p.id}`)}
                       sx={{
                         p: 0,
-                        border: '1px solid rgba(15,23,42,0.07)',
-                        borderRadius: 2.5,
+                        borderRadius: 3,
                         cursor: 'pointer',
                         overflow: 'hidden',
-                        transition: 'all 0.15s ease',
+                        transition: 'all 0.25s ease',
                         '&:hover': {
-                          borderColor: alpha('#4F46E5', 0.3),
-                          boxShadow: `0 8px 24px ${alpha('#4F46E5', 0.1)}`,
-                          transform: 'translateY(-2px)',
+                          borderColor: 'rgba(6, 182, 212, 0.2)',
+                          boxShadow: '0 8px 32px rgba(6, 182, 212, 0.1)',
+                          transform: 'translateY(-3px)',
                         },
                       }}
                     >
                       {/* Top accent bar */}
                       <Box
                         sx={{
-                          height: 4,
-                          background: 'linear-gradient(90deg, #4F46E5, #818CF8)',
+                          height: 3,
+                          background: 'var(--gradient-bar)',
                         }}
                       />
                       <Box sx={{ p: 2.5 }}>
                         <Stack direction="row" alignItems="flex-start" spacing={1.5}>
                           <Box
                             sx={{
-                              width: 36,
-                              height: 36,
-                              borderRadius: 1.5,
-                              bgcolor: alpha('#4F46E5', 0.1),
+                              width: 38,
+                              height: 38,
+                              borderRadius: 2,
+                              bgcolor: 'rgba(139, 92, 246, 0.1)',
+                              border: '1px solid rgba(139, 92, 246, 0.15)',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -172,14 +186,14 @@ export const ProjectsListPage: React.FC = () => {
                               mt: 0.25,
                             }}
                           >
-                            <FolderOpenIcon sx={{ color: '#4F46E5', fontSize: 18 }} />
+                            <FolderOpenIcon sx={{ color: 'var(--accent-secondary)', fontSize: 18 }} />
                           </Box>
                           <Box flex={1} minWidth={0}>
                             <Typography
                               sx={{
                                 fontWeight: 700,
                                 fontSize: 14,
-                                color: '#0F172A',
+                                color: 'var(--text-heading)',
                                 mb: 0.5,
                               }}
                             >
@@ -187,13 +201,15 @@ export const ProjectsListPage: React.FC = () => {
                             </Typography>
                             {p.description ? (
                               <Typography
-                                sx={{ fontSize: 12, color: '#94A3B8', lineHeight: 1.5 }}
+                                sx={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}
                                 noWrap
                               >
                                 {p.description}
                               </Typography>
                             ) : (
-                              <Typography sx={{ fontSize: 12, color: '#CBD5E1', fontStyle: 'italic' }}>
+                              <Typography
+                                sx={{ fontSize: 12, color: 'var(--text-faint)', fontStyle: 'italic' }}
+                              >
                                 説明なし
                               </Typography>
                             )}
@@ -204,7 +220,7 @@ export const ProjectsListPage: React.FC = () => {
                           sx={{
                             mt: 2,
                             pt: 2,
-                            borderTop: '1px solid rgba(15,23,42,0.06)',
+                            borderTop: '1px solid var(--border-faint)',
                             display: 'flex',
                             justifyContent: 'flex-end',
                           }}
@@ -218,10 +234,10 @@ export const ProjectsListPage: React.FC = () => {
                             }}
                             sx={{
                               fontSize: 12,
-                              color: '#4F46E5',
+                              color: 'var(--accent-primary)',
                               py: 0.25,
                               px: 1,
-                              '&:hover': { bgcolor: alpha('#4F46E5', 0.06) },
+                              '&:hover': { bgcolor: 'rgba(6, 182, 212, 0.06)' },
                             }}
                           >
                             タスクボードを開く

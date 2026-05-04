@@ -1,10 +1,10 @@
 import type { TaskPriority } from '../../types'
 
 export const STATUS_OPTIONS = [
-  { value: 'pending', label: 'Pending', color: '#94A3B8' },
-  { value: 'todo', label: 'To Do', color: '#64748B' },
-  { value: 'in_progress', label: 'In Progress', color: '#4F46E5' },
-  { value: 'done', label: 'Done', color: '#10B981' },
+  { value: 'pending', label: 'Pending', color: '#64748B' },
+  { value: 'todo', label: 'To Do', color: '#94A3B8' },
+  { value: 'in_progress', label: 'In Progress', color: '#06B6D4' },
+  { value: 'done', label: 'Done', color: '#34D399' },
 ] as const
 
 export const PRIORITY_OPTIONS: {
@@ -36,8 +36,8 @@ export const PRIORITY_CHIP_COLORS: Record<
 }
 
 export const PRIORITY_DOT_COLORS: Record<TaskPriority, string> = {
-  low: '#94A3B8',
-  medium: '#10B981',
-  high: '#F59E0B',
-  urgent: '#EF4444',
+  low: '#64748B',
+  medium: '#34D399',
+  high: '#FBBF24',
+  urgent: '#F87171',
 }

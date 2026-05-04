@@ -10,7 +10,6 @@ import {
   Stack,
   TextField,
   Typography,
-  alpha,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -101,7 +100,7 @@ export const SubtaskList: React.FC<Props> = ({
         sx={{
           fontSize: 11,
           fontWeight: 600,
-          color: '#94A3B8',
+          color: 'var(--text-muted)',
           mb: 1,
           textTransform: 'uppercase',
           letterSpacing: '0.06em',
@@ -114,10 +113,10 @@ export const SubtaskList: React.FC<Props> = ({
         <Box
           sx={{
             mb: 1.5,
-            border: '1px solid rgba(15,23,42,0.07)',
-            borderRadius: 2,
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 2.5,
             overflow: 'hidden',
-            bgcolor: 'white',
+            bgcolor: 'var(--bg-inset)',
           }}
         >
           <List dense disablePadding>
@@ -132,7 +131,7 @@ export const SubtaskList: React.FC<Props> = ({
                     py: 1,
                     borderBottom:
                       idx < subtaskList.length - 1
-                        ? '1px solid rgba(15,23,42,0.05)'
+                        ? '1px solid var(--border-faint)'
                         : 'none',
                     display: 'flex',
                     alignItems: 'center',
@@ -144,12 +143,12 @@ export const SubtaskList: React.FC<Props> = ({
                       width: 6,
                       height: 6,
                       borderRadius: '50%',
-                      bgcolor: stStatus?.color ?? '#94A3B8',
+                      bgcolor: stStatus?.color ?? '#64748B',
                       flexShrink: 0,
                     }}
                   />
                   <Typography
-                    sx={{ fontSize: 13, fontWeight: 500, flex: 1, minWidth: 0 }}
+                    sx={{ fontSize: 13, fontWeight: 500, flex: 1, minWidth: 0, color: 'var(--text-heading)' }}
                     noWrap
                   >
                     {st.title}
@@ -174,11 +173,11 @@ export const SubtaskList: React.FC<Props> = ({
                                 width: 6,
                                 height: 6,
                                 borderRadius: '50%',
-                                bgcolor: opt?.color ?? '#94A3B8',
+                                bgcolor: opt?.color ?? '#64748B',
                                 flexShrink: 0,
                               }}
                             />
-                            <Typography sx={{ fontSize: 11, color: '#64748B' }}>
+                            <Typography sx={{ fontSize: 11, color: 'var(--text-secondary)' }}>
                               {opt?.label}
                             </Typography>
                           </Box>
@@ -188,10 +187,13 @@ export const SubtaskList: React.FC<Props> = ({
                         fontSize: 11,
                         height: 28,
                         minWidth: 100,
-                        bgcolor: 'rgba(15,23,42,0.03)',
+                        bgcolor: 'var(--bg-deep)',
                         borderRadius: 1.5,
                         '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'rgba(15,23,42,0.1)',
+                          borderColor: 'var(--border-input)',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'var(--border-hover)',
                         },
                         '& .MuiSelect-select': { py: 0.5, px: 1 },
                       }}
@@ -208,7 +210,9 @@ export const SubtaskList: React.FC<Props> = ({
                                 flexShrink: 0,
                               }}
                             />
-                            <Typography sx={{ fontSize: 13 }}>{opt.label}</Typography>
+                            <Typography sx={{ fontSize: 13, color: 'var(--text-heading)' }}>
+                              {opt.label}
+                            </Typography>
                           </Box>
                         </MenuItem>
                       ))}
@@ -235,12 +239,12 @@ export const SubtaskList: React.FC<Props> = ({
                                 width: 20,
                                 height: 20,
                                 borderRadius: '50%',
-                                bgcolor: 'rgba(15,23,42,0.08)',
+                                bgcolor: 'var(--border-input)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 fontSize: 10,
-                                color: '#94A3B8',
+                                color: 'var(--text-muted)',
                                 fontWeight: 700,
                               }}
                             >
@@ -256,12 +260,12 @@ export const SubtaskList: React.FC<Props> = ({
                               width: 20,
                               height: 20,
                               borderRadius: '50%',
-                              bgcolor: alpha('#4F46E5', 0.15),
+                              background: 'var(--avatar-bg)',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
                               fontSize: 10,
-                              color: '#4F46E5',
+                              color: 'var(--accent-primary)',
                               fontWeight: 700,
                             }}
                           >
@@ -272,10 +276,13 @@ export const SubtaskList: React.FC<Props> = ({
                       sx={{
                         height: 28,
                         width: 44,
-                        bgcolor: 'rgba(15,23,42,0.03)',
+                        bgcolor: 'var(--bg-deep)',
                         borderRadius: 1.5,
                         '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'rgba(15,23,42,0.1)',
+                          borderColor: 'var(--border-input)',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'var(--border-hover)',
                         },
                         '& .MuiSelect-select': {
                           py: 0,
@@ -283,12 +290,12 @@ export const SubtaskList: React.FC<Props> = ({
                           display: 'flex',
                           alignItems: 'center',
                         },
-                        '& .MuiSelect-icon': { right: 2, fontSize: 14 },
+                        '& .MuiSelect-icon': { right: 2, fontSize: 14, color: 'var(--text-muted)' },
                       }}
                     >
                       <MenuItem value="">
                         <Typography
-                          sx={{ fontSize: 13, color: '#94A3B8', fontStyle: 'italic' }}
+                          sx={{ fontSize: 13, color: 'var(--text-muted)', fontStyle: 'italic' }}
                         >
                           未設定
                         </Typography>
@@ -301,19 +308,20 @@ export const SubtaskList: React.FC<Props> = ({
                                 width: 22,
                                 height: 22,
                                 borderRadius: '50%',
-                                bgcolor: alpha('#4F46E5', 0.12),
+                                background: 'var(--avatar-bg)',
+                                border: '1px solid var(--avatar-border)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 fontSize: 10,
                                 fontWeight: 700,
-                                color: '#4F46E5',
+                                color: 'var(--accent-primary)',
                                 flexShrink: 0,
                               }}
                             >
                               {(m.user.display_name || m.user.username)[0]?.toUpperCase()}
                             </Box>
-                            <Typography sx={{ fontSize: 13 }}>
+                            <Typography sx={{ fontSize: 13, color: 'var(--text-heading)' }}>
                               {m.user.display_name || m.user.username}
                             </Typography>
                           </Box>
@@ -334,9 +342,9 @@ export const SubtaskList: React.FC<Props> = ({
         onSubmit={handleAddSubtask}
         sx={{
           p: 1.5,
-          borderRadius: 2,
-          bgcolor: 'white',
-          border: '1px dashed rgba(15,23,42,0.12)',
+          borderRadius: 2.5,
+          bgcolor: 'var(--bg-inset)',
+          border: '1px dashed var(--border-input)',
         }}
       >
         <Stack direction="row" spacing={1} alignItems="center">
@@ -346,7 +354,12 @@ export const SubtaskList: React.FC<Props> = ({
             placeholder="サブタスクを追加..."
             value={subtaskTitle}
             onChange={(e) => setSubtaskTitle(e.target.value)}
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5, fontSize: 13 } }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 1.5,
+                fontSize: 13,
+              },
+            }}
           />
           <Button
             type="submit"
@@ -356,8 +369,6 @@ export const SubtaskList: React.FC<Props> = ({
             disabled={!subtaskTitle.trim() || addSubtask.isPending}
             sx={{
               flexShrink: 0,
-              background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-              boxShadow: 'none',
               fontSize: 12,
             }}
           >

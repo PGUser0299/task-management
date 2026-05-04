@@ -90,7 +90,6 @@ export const ProjectCreateDialog: React.FC<Props> = ({ open, onClose, defaultTea
       onClose={handleClose}
       fullWidth
       maxWidth="sm"
-      PaperProps={{ sx: { borderRadius: 3, boxShadow: '0 25px 50px rgba(15,23,42,0.2)' } }}
     >
       <DialogTitle
         sx={{
@@ -99,13 +98,13 @@ export const ProjectCreateDialog: React.FC<Props> = ({ open, onClose, defaultTea
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '1px solid rgba(15,23,42,0.07)',
+          borderBottom: '1px solid var(--border-subtle)',
         }}
       >
-        <Typography sx={{ fontWeight: 700, fontSize: 16, color: '#0F172A' }}>
+        <Typography sx={{ fontWeight: 700, fontSize: 16, color: 'var(--text-primary)' }}>
           新規プロジェクトを作成
         </Typography>
-        <IconButton size="small" onClick={handleClose} sx={{ color: '#94A3B8' }}>
+        <IconButton size="small" onClick={handleClose} sx={{ color: 'var(--text-secondary)' }}>
           <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>
@@ -114,7 +113,7 @@ export const ProjectCreateDialog: React.FC<Props> = ({ open, onClose, defaultTea
         <Box component="form" onSubmit={handleSubmit}>
           <Stack spacing={2}>
             <Box>
-              <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#374151', mb: 0.75 }}>
+              <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', mb: 0.75 }}>
                 チーム <Box component="span" sx={{ color: 'error.main' }}>*</Box>
               </Typography>
               <TextField
@@ -141,7 +140,7 @@ export const ProjectCreateDialog: React.FC<Props> = ({ open, onClose, defaultTea
             </Box>
 
             <Box>
-              <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#374151', mb: 0.75 }}>
+              <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', mb: 0.75 }}>
                 プロジェクト名 <Box component="span" sx={{ color: 'error.main' }}>*</Box>
               </Typography>
               <TextField
@@ -156,7 +155,7 @@ export const ProjectCreateDialog: React.FC<Props> = ({ open, onClose, defaultTea
             </Box>
 
             <Box>
-              <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#374151', mb: 0.75 }}>
+              <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', mb: 0.75 }}>
                 説明
               </Typography>
               <TextField
@@ -192,7 +191,7 @@ export const ProjectCreateDialog: React.FC<Props> = ({ open, onClose, defaultTea
           <Stack direction="row" spacing={1.5} justifyContent="flex-end" sx={{ mt: 3 }}>
             <Button
               onClick={handleClose}
-              sx={{ color: '#64748B', '&:hover': { bgcolor: 'rgba(100,116,139,0.08)' } }}
+              sx={{ color: 'var(--text-muted)', '&:hover': { bgcolor: 'rgba(100,116,139,0.08)' } }}
             >
               キャンセル
             </Button>
@@ -200,11 +199,7 @@ export const ProjectCreateDialog: React.FC<Props> = ({ open, onClose, defaultTea
               type="submit"
               variant="contained"
               disabled={createProject.isPending || !name.trim() || !teamId}
-              sx={{
-                background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                boxShadow: '0 2px 8px rgba(79,70,229,0.35)',
-                px: 3,
-              }}
+              sx={{ px: 3 }}
             >
               {createProject.isPending ? '作成中...' : 'プロジェクトを作成'}
             </Button>

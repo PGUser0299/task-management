@@ -132,14 +132,15 @@ export const DashboardPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#F8FAFC' }}>
+    <Box sx={{ minHeight: '100vh' }}>
       {/* Page header */}
       <Box
         sx={{
           px: { xs: 3, md: 4 },
           py: 3,
-          bgcolor: 'white',
-          borderBottom: '1px solid rgba(15,23,42,0.07)',
+          borderBottom: '1px solid var(--border-faint)',
+          bgcolor: 'var(--bg-header)',
+          backdropFilter: 'blur(12px)',
         }}
       >
         <Stack
@@ -147,15 +148,16 @@ export const DashboardPage: React.FC = () => {
           alignItems="flex-start"
           justifyContent="space-between"
           spacing={2}
+          sx={{ animation: 'fadeInUp 0.4s ease both' }}
         >
           <Box>
             <Typography
               variant="h5"
-              sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}
+              sx={{ fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}
             >
               ダッシュボード
             </Typography>
-            <Typography sx={{ color: '#64748B', fontSize: 14, mt: 0.25 }}>
+            <Typography sx={{ color: 'var(--text-muted)', fontSize: 14, mt: 0.25 }}>
               チームのタスク進捗と一覧を確認
             </Typography>
           </Box>
@@ -164,11 +166,7 @@ export const DashboardPage: React.FC = () => {
               variant="contained"
               startIcon={<AddIcon />}
               onClick={() => setTeamDialogOpen(true)}
-              sx={{
-                background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                boxShadow: '0 2px 8px rgba(79,70,229,0.35)',
-                flexShrink: 0,
-              }}
+              sx={{ flexShrink: 0 }}
             >
               チーム作成
             </Button>
@@ -179,12 +177,7 @@ export const DashboardPage: React.FC = () => {
           <Tabs
             value={selectedTeamId ?? false}
             onChange={(_, v) => setSelectedTeamId(v as number)}
-            sx={{
-              mt: 2,
-              minHeight: 36,
-              '& .MuiTab-root': { minHeight: 36, py: 0.5, fontSize: 13, fontWeight: 600 },
-              '& .MuiTabs-indicator': { height: 2 },
-            }}
+            sx={{ mt: 2 }}
           >
             {teamList.map((team) => (
               <Tab key={team.id} label={team.name} value={team.id} />
@@ -192,7 +185,7 @@ export const DashboardPage: React.FC = () => {
           </Tabs>
         )}
         {teamList.length === 0 && (
-          <Typography sx={{ color: '#94A3B8', fontSize: 14, mt: 1.5 }}>
+          <Typography sx={{ color: 'var(--text-faint)', fontSize: 14, mt: 1.5 }}>
             所属チームがまだありません。
           </Typography>
         )}
@@ -202,46 +195,50 @@ export const DashboardPage: React.FC = () => {
         {selectedTeamId && (
           <Stack spacing={3}>
             <Grid container spacing={2}>
-              <Grid item xs={6} sm={3}>
-                <StatCard
-                  label="プロジェクト数"
-                  value={projectList.length}
-                  icon={<FolderOpenIcon />}
-                  color="#4F46E5"
-                  bgColor={alpha('#4F46E5', 0.1)}
-                />
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <StatCard
-                  label="タスク総数"
-                  value={teamTaskList.length}
-                  icon={<PendingActionsIcon />}
-                  color="#0EA5E9"
-                  bgColor={alpha('#0EA5E9', 0.1)}
-                />
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <StatCard
-                  label="対応中"
-                  value={inProgressTasks}
-                  icon={<AssignmentTurnedInIcon />}
-                  color="#F59E0B"
-                  bgColor={alpha('#F59E0B', 0.1)}
-                />
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <StatCard
-                  label="メンバー数"
-                  value={memberList.length}
-                  icon={<GroupIcon />}
-                  color="#10B981"
-                  bgColor={alpha('#10B981', 0.1)}
-                />
-              </Grid>
+              {[
+                {
+                  label: 'プロジェクト数',
+                  value: projectList.length,
+                  icon: <FolderOpenIcon />,
+                  color: '#8B5CF6',
+                  bgColor: alpha('#8B5CF6', 0.1),
+                },
+                {
+                  label: 'タスク総数',
+                  value: teamTaskList.length,
+                  icon: <PendingActionsIcon />,
+                  color: '#06B6D4',
+                  bgColor: alpha('#06B6D4', 0.1),
+                },
+                {
+                  label: '対応中',
+                  value: inProgressTasks,
+                  icon: <AssignmentTurnedInIcon />,
+                  color: '#FBBF24',
+                  bgColor: alpha('#FBBF24', 0.1),
+                },
+                {
+                  label: 'メンバー数',
+                  value: memberList.length,
+                  icon: <GroupIcon />,
+                  color: '#34D399',
+                  bgColor: alpha('#34D399', 0.1),
+                },
+              ].map((stat, i) => (
+                <Grid
+                  item
+                  xs={6}
+                  sm={3}
+                  key={stat.label}
+                  sx={{ animation: `fadeInUp 0.4s ease ${0.05 + i * 0.05}s both` }}
+                >
+                  <StatCard {...stat} />
+                </Grid>
+              ))}
             </Grid>
 
             <Grid container spacing={3} alignItems="start">
-              <Grid item xs={12} lg={7}>
+              <Grid item xs={12} lg={7} sx={{ animation: 'fadeInUp 0.4s ease 0.15s both' }}>
                 <AiSuggestPanel
                   loading={aiLoading}
                   suggest={aiSuggest}
@@ -252,22 +249,28 @@ export const DashboardPage: React.FC = () => {
 
               <Grid item xs={12} lg={5}>
                 <Stack spacing={3}>
-                  <ActiveProjectsPanel
-                    projects={activeProjectList}
-                    isAdmin={isAdmin}
-                    onCreate={() => setProjectDialogOpen(true)}
-                    onViewAll={() => navigate('/projects')}
-                    onSelect={(id) => navigate(`/projects/${id}`)}
-                  />
-                  <ActiveMembersPanel
-                    members={activeMemberList}
-                    onViewAll={() => navigate('/members')}
-                  />
+                  <Box sx={{ animation: 'fadeInUp 0.4s ease 0.2s both' }}>
+                    <ActiveProjectsPanel
+                      projects={activeProjectList}
+                      isAdmin={isAdmin}
+                      onCreate={() => setProjectDialogOpen(true)}
+                      onViewAll={() => navigate('/projects')}
+                      onSelect={(id) => navigate(`/projects/${id}`)}
+                    />
+                  </Box>
+                  <Box sx={{ animation: 'fadeInUp 0.4s ease 0.25s both' }}>
+                    <ActiveMembersPanel
+                      members={activeMemberList}
+                      onViewAll={() => navigate('/members')}
+                    />
+                  </Box>
                 </Stack>
               </Grid>
             </Grid>
 
-            <TaskProgressSummary tasks={teamTaskList} />
+            <Box sx={{ animation: 'fadeInUp 0.4s ease 0.3s both' }}>
+              <TaskProgressSummary tasks={teamTaskList} />
+            </Box>
           </Stack>
         )}
       </Container>

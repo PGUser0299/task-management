@@ -76,13 +76,23 @@ export const RegisterPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex' }}>
+    <Box sx={{ minHeight: '100vh', display: 'flex', bgcolor: 'var(--bg-deep)' }}>
       <BrandingPanel
         headline={
           <>
             今日から始める
             <br />
-            <Box component="span" sx={{ color: '#818CF8' }}>スマート</Box>な管理
+            <Box
+              component="span"
+              sx={{
+                background: 'var(--gradient-bar)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              スマート
+            </Box>
+            な管理
           </>
         }
         subtext={'チームの生産性を\nすぐに向上させましょう。'}
@@ -97,22 +107,38 @@ export const RegisterPage: React.FC = () => {
           justifyContent: 'center',
           px: { xs: 3, sm: 6, md: 8 },
           py: 6,
-          bgcolor: '#F8FAFC',
+          bgcolor: 'var(--bg-deep)',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        <Box sx={{ width: '100%', maxWidth: 420 }}>
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: '20%',
+            left: '30%',
+            width: 300,
+            height: 300,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.04), transparent)',
+            filter: 'blur(60px)',
+            pointerEvents: 'none',
+          }}
+        />
+
+        <Box sx={{ width: '100%', maxWidth: 420, position: 'relative', zIndex: 1 }}>
           <Stack
             direction="row"
             alignItems="center"
             spacing={1.5}
-            sx={{ mb: 5, display: { md: 'none' } }}
+            sx={{ mb: 5, display: { md: 'none' }, animation: 'fadeInUp 0.5s ease both' }}
           >
             <Box
               sx={{
                 width: 36,
                 height: 36,
                 borderRadius: 2,
-                background: 'linear-gradient(135deg, #818CF8, #4F46E5)',
+                background: 'var(--gradient-accent)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -120,16 +146,31 @@ export const RegisterPage: React.FC = () => {
             >
               <AutoAwesomeIcon sx={{ color: 'white', fontSize: 18 }} />
             </Box>
-            <Typography sx={{ fontWeight: 700, fontSize: 16 }}>TaskBoard AI</Typography>
+            <Typography sx={{ fontWeight: 700, fontSize: 16, color: 'var(--text-primary)' }}>
+              TaskBoard AI
+            </Typography>
           </Stack>
 
           <Typography
             variant="h4"
-            sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: '#0F172A', mb: 0.5 }}
+            sx={{
+              fontWeight: 800,
+              letterSpacing: '-0.02em',
+              color: 'var(--text-primary)',
+              mb: 0.5,
+              animation: 'fadeInUp 0.5s ease 0.05s both',
+            }}
           >
             アカウント作成
           </Typography>
-          <Typography sx={{ color: '#64748B', mb: 4, fontSize: 15 }}>
+          <Typography
+            sx={{
+              color: 'var(--text-muted)',
+              mb: 4,
+              fontSize: 15,
+              animation: 'fadeInUp 0.5s ease 0.1s both',
+            }}
+          >
             新しいアカウントで始めましょう
           </Typography>
 
@@ -137,20 +178,16 @@ export const RegisterPage: React.FC = () => {
             elevation={0}
             sx={{
               p: 3.5,
-              border: '1px solid rgba(15,23,42,0.08)',
               borderRadius: 3,
-              bgcolor: 'white',
-              boxShadow: '0 4px 24px rgba(15,23,42,0.06)',
+              animation: 'fadeInUp 0.5s ease 0.15s both',
             }}
           >
             <Box component="form" onSubmit={handleSubmit}>
               <Stack spacing={2}>
                 <Box>
-                  <Typography
-                    sx={{ fontSize: 13, fontWeight: 600, color: '#374151', mb: 0.75 }}
-                  >
+                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', mb: 0.75 }}>
                     ユーザー名{' '}
-                    <Box component="span" sx={{ color: 'error.main' }}>*</Box>
+                    <Box component="span" sx={{ color: 'var(--error)' }}>*</Box>
                   </Typography>
                   <TextField
                     fullWidth
@@ -160,18 +197,12 @@ export const RegisterPage: React.FC = () => {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     autoComplete="username"
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                   />
                 </Box>
                 <Box>
-                  <Typography
-                    sx={{ fontSize: 13, fontWeight: 600, color: '#374151', mb: 0.75 }}
-                  >
+                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', mb: 0.75 }}>
                     メールアドレス
-                    <Box
-                      component="span"
-                      sx={{ color: '#94A3B8', fontWeight: 400, ml: 0.5 }}
-                    >
+                    <Box component="span" sx={{ color: 'var(--text-faint)', fontWeight: 400, ml: 0.5 }}>
                       （任意）
                     </Box>
                   </Typography>
@@ -183,18 +214,12 @@ export const RegisterPage: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     autoComplete="email"
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                   />
                 </Box>
                 <Box>
-                  <Typography
-                    sx={{ fontSize: 13, fontWeight: 600, color: '#374151', mb: 0.75 }}
-                  >
+                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', mb: 0.75 }}>
                     表示名
-                    <Box
-                      component="span"
-                      sx={{ color: '#94A3B8', fontWeight: 400, ml: 0.5 }}
-                    >
+                    <Box component="span" sx={{ color: 'var(--text-faint)', fontWeight: 400, ml: 0.5 }}>
                       （任意）
                     </Box>
                   </Typography>
@@ -204,15 +229,12 @@ export const RegisterPage: React.FC = () => {
                     placeholder="山田 太郎"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                   />
                 </Box>
                 <Box>
-                  <Typography
-                    sx={{ fontSize: 13, fontWeight: 600, color: '#374151', mb: 0.75 }}
-                  >
+                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', mb: 0.75 }}>
                     パスワード{' '}
-                    <Box component="span" sx={{ color: 'error.main' }}>*</Box>
+                    <Box component="span" sx={{ color: 'var(--error)' }}>*</Box>
                   </Typography>
                   <TextField
                     fullWidth
@@ -223,7 +245,6 @@ export const RegisterPage: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="new-password"
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
                   />
                 </Box>
               </Stack>
@@ -235,8 +256,8 @@ export const RegisterPage: React.FC = () => {
                     px: 1.5,
                     py: 1,
                     borderRadius: 1.5,
-                    bgcolor: 'rgba(239,68,68,0.08)',
-                    border: '1px solid rgba(239,68,68,0.2)',
+                    bgcolor: 'rgba(248, 113, 113, 0.08)',
+                    border: '1px solid rgba(248, 113, 113, 0.2)',
                   }}
                 >
                   <Typography color="error" variant="body2" sx={{ fontSize: 13 }}>
@@ -251,22 +272,10 @@ export const RegisterPage: React.FC = () => {
                 fullWidth
                 size="large"
                 disabled={registerMutation.isPending}
-                sx={{
-                  mt: 3,
-                  py: 1.25,
-                  borderRadius: 2,
-                  fontSize: 14,
-                  fontWeight: 700,
-                  background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                  boxShadow: '0 4px 14px rgba(79,70,229,0.4)',
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #4F46E5, #4338CA)',
-                    boxShadow: '0 6px 20px rgba(79,70,229,0.5)',
-                  },
-                }}
+                sx={{ mt: 3, py: 1.3, borderRadius: 2, fontSize: 14, fontWeight: 700 }}
               >
                 {registerMutation.isPending ? (
-                  <CircularProgress size={22} color="inherit" />
+                  <CircularProgress size={22} sx={{ color: 'white' }} />
                 ) : (
                   'アカウントを作成'
                 )}
@@ -274,14 +283,22 @@ export const RegisterPage: React.FC = () => {
             </Box>
           </Paper>
 
-          <Typography sx={{ mt: 3, textAlign: 'center', color: '#64748B', fontSize: 14 }}>
+          <Typography
+            sx={{
+              mt: 3,
+              textAlign: 'center',
+              color: 'var(--text-muted)',
+              fontSize: 14,
+              animation: 'fadeInUp 0.5s ease 0.2s both',
+            }}
+          >
             すでにアカウントをお持ちの方は{' '}
             <Link
               component={RouterLink}
               to="/login"
               sx={{
                 fontWeight: 700,
-                color: '#4F46E5',
+                color: 'var(--accent-primary)',
                 textDecoration: 'none',
                 '&:hover': { textDecoration: 'underline' },
               }}

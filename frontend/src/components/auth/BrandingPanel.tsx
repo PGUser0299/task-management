@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Stack, Typography, alpha } from '@mui/material'
+import { Box, Stack, Typography } from '@mui/material'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 
@@ -9,99 +9,40 @@ const FEATURES = [
   'カンバンボードで直感的に管理',
 ]
 
-type Props = {
-  headline: React.ReactNode
-  subtext: string
-}
+type Props = { headline: React.ReactNode; subtext: string }
 
 export const BrandingPanel: React.FC<Props> = ({ headline, subtext }) => (
-  <Box
-    sx={{
-      display: { xs: 'none', md: 'flex' },
-      flex: '0 0 45%',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      px: 8,
-      background: 'linear-gradient(145deg, #0F172A 0%, #1E1B4B 60%, #312E81 100%)',
-      position: 'relative',
-      overflow: 'hidden',
-    }}
-  >
-    {/* Background decorations */}
-    <Box
-      sx={{
-        position: 'absolute',
-        top: -100,
-        right: -100,
-        width: 400,
-        height: 400,
-        borderRadius: '50%',
-        background: alpha('#4F46E5', 0.15),
-        filter: 'blur(80px)',
-      }}
-    />
-    <Box
-      sx={{
-        position: 'absolute',
-        bottom: -80,
-        left: -80,
-        width: 300,
-        height: 300,
-        borderRadius: '50%',
-        background: alpha('#0EA5E9', 0.1),
-        filter: 'blur(60px)',
-      }}
-    />
+  <Box sx={{
+    display: { xs: 'none', md: 'flex' },
+    flex: '0 0 45%', flexDirection: 'column', justifyContent: 'center', px: 8,
+    background: '#0B0F1A', position: 'relative', overflow: 'hidden',
+  }}>
+    <Box sx={{ position: 'absolute', top: '-20%', right: '-15%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 70%)', filter: 'blur(60px)', animation: 'pulseGlow 6s ease-in-out infinite' }} />
+    <Box sx={{ position: 'absolute', bottom: '-25%', left: '-10%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%)', filter: 'blur(60px)', animation: 'pulseGlow 8s ease-in-out infinite 2s' }} />
+    <Box sx={{ position: 'absolute', inset: 0, opacity: 0.03, backgroundImage: 'linear-gradient(rgba(148,163,184,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.5) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
     <Box sx={{ position: 'relative', zIndex: 1 }}>
-      {/* Logo */}
-      <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 6 }}>
-        <Box
-          sx={{
-            width: 40,
-            height: 40,
-            borderRadius: 2,
-            background: 'linear-gradient(135deg, #818CF8, #4F46E5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 8px 20px rgba(79,70,229,0.5)',
-          }}
-        >
-          <AutoAwesomeIcon sx={{ color: 'white', fontSize: 20 }} />
+      <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 6, animation: 'fadeInUp 0.6s ease both' }}>
+        <Box sx={{ width: 42, height: 42, borderRadius: 2.5, background: 'var(--gradient-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(6,182,212,0.35)' }}>
+          <AutoAwesomeIcon sx={{ color: 'white', fontSize: 22 }} />
         </Box>
-        <Typography sx={{ color: 'white', fontWeight: 700, fontSize: 18 }}>
-          TaskBoard AI
-        </Typography>
+        <Typography sx={{ color: '#F1F5F9', fontWeight: 700, fontSize: 18, letterSpacing: '-0.02em' }}>TaskBoard AI</Typography>
       </Stack>
 
-      <Typography
-        variant="h3"
-        sx={{
-          color: 'white',
-          fontWeight: 800,
-          lineHeight: 1.2,
-          letterSpacing: '-0.03em',
-          mb: 2,
-        }}
-      >
+      <Typography variant="h3" sx={{ color: '#F1F5F9', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.03em', mb: 2, animation: 'fadeInUp 0.6s ease 0.1s both' }}>
         {headline}
       </Typography>
-      <Typography
-        sx={{ color: 'rgba(255,255,255,0.55)', fontSize: 15, mb: 5, lineHeight: 1.7 }}
-      >
+      <Typography sx={{ color: '#64748B', fontSize: 15, mb: 5, lineHeight: 1.7, animation: 'fadeInUp 0.6s ease 0.2s both' }}>
         {subtext}
       </Typography>
 
       <Stack spacing={1.5}>
-        {FEATURES.map((f) => (
-          <Stack key={f} direction="row" alignItems="center" spacing={1.5}>
-            <CheckCircleOutlineIcon
-              sx={{ color: '#818CF8', fontSize: 18, flexShrink: 0 }}
-            />
-            <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>
-              {f}
-            </Typography>
+        {FEATURES.map((f, i) => (
+          <Stack key={f} direction="row" alignItems="center" spacing={1.5} sx={{ animation: `fadeInUp 0.5s ease ${0.3 + i * 0.08}s both` }}>
+            <Box sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: 'rgba(6,182,212,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <CheckCircleOutlineIcon sx={{ color: '#06B6D4', fontSize: 14 }} />
+            </Box>
+            <Typography sx={{ color: '#94A3B8', fontSize: 14 }}>{f}</Typography>
           </Stack>
         ))}
       </Stack>

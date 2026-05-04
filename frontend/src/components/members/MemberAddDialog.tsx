@@ -99,7 +99,6 @@ export const MemberAddDialog: React.FC<Props> = ({ teamId, open, onClose }) => {
       onClose={handleClose}
       fullWidth
       maxWidth="xs"
-      PaperProps={{ sx: { borderRadius: 3, boxShadow: '0 25px 50px rgba(15,23,42,0.2)' } }}
     >
       <DialogTitle
         sx={{
@@ -108,13 +107,13 @@ export const MemberAddDialog: React.FC<Props> = ({ teamId, open, onClose }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '1px solid rgba(15,23,42,0.07)',
+          borderBottom: '1px solid var(--border-subtle)',
         }}
       >
-        <Typography sx={{ fontWeight: 700, fontSize: 16, color: '#0F172A' }}>
+        <Typography sx={{ fontWeight: 700, fontSize: 16, color: 'var(--text-primary)' }}>
           メンバーを追加
         </Typography>
-        <IconButton size="small" onClick={handleClose} sx={{ color: '#94A3B8' }}>
+        <IconButton size="small" onClick={handleClose} sx={{ color: 'var(--text-secondary)' }}>
           <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>
@@ -123,7 +122,7 @@ export const MemberAddDialog: React.FC<Props> = ({ teamId, open, onClose }) => {
         <Box component="form" onSubmit={handleSubmit}>
           <Stack spacing={2}>
             <Box>
-              <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#374151', mb: 0.75 }}>
+              <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', mb: 0.75 }}>
                 ユーザー <Box component="span" sx={{ color: 'error.main' }}>*</Box>
               </Typography>
               <TextField
@@ -147,7 +146,7 @@ export const MemberAddDialog: React.FC<Props> = ({ teamId, open, onClose }) => {
                     {u.display_name && (
                       <Typography
                         component="span"
-                        sx={{ fontSize: 11, color: '#94A3B8', ml: 1 }}
+                        sx={{ fontSize: 11, color: 'var(--text-secondary)', ml: 1 }}
                       >
                         @{u.username}
                       </Typography>
@@ -158,7 +157,7 @@ export const MemberAddDialog: React.FC<Props> = ({ teamId, open, onClose }) => {
             </Box>
 
             <Box>
-              <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#374151', mb: 0.75 }}>
+              <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', mb: 0.75 }}>
                 ロール
               </Typography>
               <TextField
@@ -198,7 +197,7 @@ export const MemberAddDialog: React.FC<Props> = ({ teamId, open, onClose }) => {
           <Stack direction="row" spacing={1.5} justifyContent="flex-end" sx={{ mt: 3 }}>
             <Button
               onClick={handleClose}
-              sx={{ color: '#64748B', '&:hover': { bgcolor: 'rgba(100,116,139,0.08)' } }}
+              sx={{ color: 'var(--text-muted)', '&:hover': { bgcolor: 'rgba(100,116,139,0.08)' } }}
             >
               キャンセル
             </Button>
@@ -206,11 +205,7 @@ export const MemberAddDialog: React.FC<Props> = ({ teamId, open, onClose }) => {
               type="submit"
               variant="contained"
               disabled={addMember.isPending || !userId}
-              sx={{
-                background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                boxShadow: '0 2px 8px rgba(79,70,229,0.35)',
-                px: 3,
-              }}
+              sx={{ px: 3 }}
             >
               {addMember.isPending ? '追加中...' : 'メンバーを追加'}
             </Button>

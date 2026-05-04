@@ -11,7 +11,6 @@ import {
   Stack,
   Tooltip,
   Typography,
-  alpha,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
@@ -117,26 +116,29 @@ export const TaskDetailDrawer: React.FC<Props> = ({
         sx: {
           width: { xs: '100%', sm: 460 },
           border: 'none',
-          boxShadow: '-8px 0 32px rgba(15,23,42,0.12)',
+          bgcolor: 'var(--bg-deep)',
+          backgroundImage: 'none',
+          boxShadow: 'var(--shadow-dialog)',
+          backdropFilter: 'none',
         },
       }}
     >
       <Box
-        sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F8FAFC' }}
+        sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: 'var(--bg-deep)' }}
       >
         {/* Header */}
         <Box
           sx={{
             px: 2.5,
             py: 2,
-            bgcolor: 'white',
-            borderBottom: '1px solid rgba(15,23,42,0.07)',
+            bgcolor: 'var(--bg-surface)',
+            borderBottom: '1px solid var(--border-subtle)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
           }}
         >
-          <Typography sx={{ fontWeight: 700, fontSize: 15, color: '#0F172A' }}>
+          <Typography sx={{ fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>
             タスク詳細
           </Typography>
           <Box display="flex" alignItems="center" gap={0.5}>
@@ -146,8 +148,8 @@ export const TaskDetailDrawer: React.FC<Props> = ({
                 onClick={() => updateStatus.mutate('pending')}
                 disabled={updateStatus.isPending || !taskId}
                 sx={{
-                  color: '#94A3B8',
-                  '&:hover': { color: '#F59E0B', bgcolor: alpha('#F59E0B', 0.08) },
+                  color: 'var(--text-muted)',
+                  '&:hover': { color: 'var(--warning)', bgcolor: 'rgba(251, 191, 36, 0.08)' },
                 }}
               >
                 <ReplayIcon fontSize="small" />
@@ -159,8 +161,8 @@ export const TaskDetailDrawer: React.FC<Props> = ({
                 onClick={() => deleteTask.mutate()}
                 disabled={deleteTask.isPending || !taskId}
                 sx={{
-                  color: '#94A3B8',
-                  '&:hover': { color: '#EF4444', bgcolor: alpha('#EF4444', 0.08) },
+                  color: 'var(--text-muted)',
+                  '&:hover': { color: 'var(--error)', bgcolor: 'rgba(248, 113, 113, 0.08)' },
                 }}
               >
                 <DeleteOutlineIcon fontSize="small" />
@@ -169,7 +171,7 @@ export const TaskDetailDrawer: React.FC<Props> = ({
             <IconButton
               size="small"
               onClick={onClose}
-              sx={{ color: '#94A3B8', '&:hover': { bgcolor: 'rgba(15,23,42,0.06)' } }}
+              sx={{ color: 'var(--text-muted)', '&:hover': { bgcolor: 'rgba(148, 163, 184, 0.08)' } }}
             >
               <CloseIcon fontSize="small" />
             </IconButton>
@@ -191,8 +193,8 @@ export const TaskDetailDrawer: React.FC<Props> = ({
                 sx={{
                   px: 2.5,
                   py: 2.5,
-                  bgcolor: 'white',
-                  borderBottom: '1px solid rgba(15,23,42,0.07)',
+                  bgcolor: 'var(--bg-surface)',
+                  borderBottom: '1px solid var(--border-faint)',
                 }}
               >
                 <Box display="flex" alignItems="flex-start" gap={1.5} mb={1}>
@@ -203,18 +205,18 @@ export const TaskDetailDrawer: React.FC<Props> = ({
                       borderRadius: '50%',
                       mt: 1,
                       flexShrink: 0,
-                      bgcolor: PRIORITY_DOT_COLORS[task.priority] ?? '#94A3B8',
+                      bgcolor: PRIORITY_DOT_COLORS[task.priority] ?? '#64748B',
                     }}
                   />
                   <Typography
-                    sx={{ fontSize: 17, fontWeight: 700, color: '#0F172A', lineHeight: 1.4 }}
+                    sx={{ fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.4 }}
                   >
                     {task.title}
                   </Typography>
                 </Box>
                 {task.description && (
                   <Typography
-                    sx={{ fontSize: 14, color: '#64748B', lineHeight: 1.6, pl: 2.5 }}
+                    sx={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, pl: 2.5 }}
                   >
                     {task.description}
                   </Typography>
@@ -226,8 +228,8 @@ export const TaskDetailDrawer: React.FC<Props> = ({
                 sx={{
                   px: 2.5,
                   py: 2,
-                  bgcolor: 'white',
-                  borderBottom: '1px solid rgba(15,23,42,0.07)',
+                  bgcolor: 'var(--bg-surface)',
+                  borderBottom: '1px solid var(--border-faint)',
                 }}
               >
                 <Box display="flex" flexWrap="wrap" gap={1}>
@@ -240,16 +242,18 @@ export const TaskDetailDrawer: React.FC<Props> = ({
                     <Chip
                       size="small"
                       variant="outlined"
-                      icon={<CalendarTodayIcon sx={{ fontSize: '13px !important' }} />}
+                      icon={<CalendarTodayIcon sx={{ fontSize: '13px !important', color: 'var(--text-secondary)' }} />}
                       label={task.due_date}
+                      sx={{ borderColor: 'var(--border-input)', color: 'var(--text-secondary)' }}
                     />
                   )}
                   {task.estimate_minutes != null && (
                     <Chip
                       size="small"
                       variant="outlined"
-                      icon={<AccessTimeIcon sx={{ fontSize: '13px !important' }} />}
+                      icon={<AccessTimeIcon sx={{ fontSize: '13px !important', color: 'var(--text-secondary)' }} />}
                       label={`${Math.ceil(task.estimate_minutes / (60 * 8))}日`}
+                      sx={{ borderColor: 'var(--border-input)', color: 'var(--text-secondary)' }}
                     />
                   )}
                 </Box>
@@ -264,7 +268,7 @@ export const TaskDetailDrawer: React.FC<Props> = ({
                       sx={{
                         fontSize: 11,
                         fontWeight: 600,
-                        color: '#94A3B8',
+                        color: 'var(--text-muted)',
                         mb: 0.75,
                         textTransform: 'uppercase',
                         letterSpacing: '0.06em',
@@ -291,15 +295,20 @@ export const TaskDetailDrawer: React.FC<Props> = ({
                                   bgcolor: opt?.color,
                                 }}
                               />
-                              <Typography sx={{ fontSize: 13 }}>{opt?.label}</Typography>
+                              <Typography sx={{ fontSize: 13, color: 'var(--text-heading)' }}>
+                                {opt?.label}
+                              </Typography>
                             </Box>
                           )
                         }}
                         sx={{
-                          bgcolor: 'white',
+                          bgcolor: 'var(--bg-input)',
                           borderRadius: 2,
                           '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'rgba(15,23,42,0.1)',
+                            borderColor: 'var(--border-input)',
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'var(--border-hover)',
                           },
                         }}
                       >
@@ -314,7 +323,9 @@ export const TaskDetailDrawer: React.FC<Props> = ({
                                   bgcolor: opt.color,
                                 }}
                               />
-                              <Typography sx={{ fontSize: 13 }}>{opt.label}</Typography>
+                              <Typography sx={{ fontSize: 13, color: 'var(--text-heading)' }}>
+                                {opt.label}
+                              </Typography>
                             </Box>
                           </MenuItem>
                         ))}
@@ -328,7 +339,7 @@ export const TaskDetailDrawer: React.FC<Props> = ({
                       sx={{
                         fontSize: 11,
                         fontWeight: 600,
-                        color: '#94A3B8',
+                        color: 'var(--text-muted)',
                         mb: 0.75,
                         textTransform: 'uppercase',
                         letterSpacing: '0.06em',
@@ -346,16 +357,19 @@ export const TaskDetailDrawer: React.FC<Props> = ({
                         }
                         displayEmpty
                         sx={{
-                          bgcolor: 'white',
+                          bgcolor: 'var(--bg-input)',
                           borderRadius: 2,
                           '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'rgba(15,23,42,0.1)',
+                            borderColor: 'var(--border-input)',
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'var(--border-hover)',
                           },
                         }}
                       >
                         <MenuItem value="">
                           <Typography
-                            sx={{ fontSize: 13, color: '#94A3B8', fontStyle: 'italic' }}
+                            sx={{ fontSize: 13, color: 'var(--text-muted)', fontStyle: 'italic' }}
                           >
                             未設定
                           </Typography>
@@ -368,18 +382,19 @@ export const TaskDetailDrawer: React.FC<Props> = ({
                                   width: 22,
                                   height: 22,
                                   borderRadius: '50%',
-                                  bgcolor: alpha('#4F46E5', 0.12),
+                                  background: 'var(--avatar-bg)',
+                                  border: '1px solid var(--avatar-border)',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
                                   fontSize: 10,
                                   fontWeight: 700,
-                                  color: '#4F46E5',
+                                  color: 'var(--accent-primary)',
                                 }}
                               >
                                 {(m.user.display_name || m.user.username)[0]?.toUpperCase()}
                               </Box>
-                              <Typography sx={{ fontSize: 13 }}>
+                              <Typography sx={{ fontSize: 13, color: 'var(--text-heading)' }}>
                                 {m.user.display_name || m.user.username}
                               </Typography>
                             </Box>

@@ -25,11 +25,11 @@ import {
 } from '../components/tasks/taskConstants'
 import type { Task, TaskStatus } from '../types'
 
-const statusColumns: { key: TaskStatus; label: string; accent: string; bg: string }[] = [
-  { key: 'pending', label: 'Pending', accent: '#94A3B8', bg: 'rgba(148,163,184,0.08)' },
-  { key: 'todo', label: 'To Do', accent: '#64748B', bg: 'rgba(100,116,139,0.08)' },
-  { key: 'in_progress', label: 'In Progress', accent: '#4F46E5', bg: 'rgba(79,70,229,0.08)' },
-  { key: 'done', label: 'Done', accent: '#10B981', bg: 'rgba(16,185,129,0.08)' },
+const statusColumns: { key: TaskStatus; label: string; accent: string }[] = [
+  { key: 'pending', label: 'Pending', accent: '#64748B' },
+  { key: 'todo', label: 'To Do', accent: '#94A3B8' },
+  { key: 'in_progress', label: 'In Progress', accent: '#06B6D4' },
+  { key: 'done', label: 'Done', accent: '#34D399' },
 ]
 
 export const ProjectTasksPage: React.FC = () => {
@@ -71,29 +71,34 @@ export const ProjectTasksPage: React.FC = () => {
   }, [tasks])
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#F8FAFC', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Page header */}
       <Box
         sx={{
           px: { xs: 2, md: 4 },
           py: 2,
-          bgcolor: 'white',
-          borderBottom: '1px solid rgba(15,23,42,0.07)',
+          borderBottom: '1px solid var(--border-faint)',
+          bgcolor: 'var(--bg-header)',
+          backdropFilter: 'blur(12px)',
           display: 'flex',
           alignItems: 'center',
           gap: 2,
+          animation: 'fadeInUp 0.3s ease both',
         }}
       >
         <Button
           startIcon={<ArrowBackIcon sx={{ fontSize: 16 }} />}
           onClick={() => navigate('/')}
           size="small"
-          sx={{ color: '#64748B', '&:hover': { color: '#4F46E5', bgcolor: alpha('#4F46E5', 0.06) } }}
+          sx={{
+            color: 'var(--text-muted)',
+            '&:hover': { color: 'var(--accent-primary)', bgcolor: 'rgba(6, 182, 212, 0.06)' },
+          }}
         >
           ダッシュボード
         </Button>
-        <Box sx={{ width: 1, height: 16, bgcolor: 'rgba(15,23,42,0.1)' }} />
-        <Typography sx={{ fontSize: 14, color: '#0F172A', fontWeight: 600 }}>
+        <Box sx={{ width: 1, height: 16, bgcolor: 'var(--border-input)' }} />
+        <Typography sx={{ fontSize: 14, color: 'var(--text-primary)', fontWeight: 600 }}>
           タスクボード
         </Typography>
         <Box flex={1} />
@@ -102,10 +107,6 @@ export const ProjectTasksPage: React.FC = () => {
           startIcon={<AddIcon />}
           onClick={() => setOpenCreate(true)}
           size="small"
-          sx={{
-            background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-            boxShadow: '0 2px 8px rgba(79,70,229,0.35)',
-          }}
         >
           新規タスク
         </Button>
@@ -119,23 +120,44 @@ export const ProjectTasksPage: React.FC = () => {
           </Box>
         ) : (
           <Grid container spacing={2.5} sx={{ minWidth: 900, flexWrap: 'nowrap' }}>
-            {statusColumns.map((col) => (
-              <Grid item xs={3} key={col.key} sx={{ flex: '1 1 0', minWidth: 220 }}>
+            {statusColumns.map((col, colIdx) => (
+              <Grid
+                item
+                xs={3}
+                key={col.key}
+                sx={{
+                  flex: '1 1 0',
+                  minWidth: 220,
+                  animation: `fadeInUp 0.4s ease ${colIdx * 0.06}s both`,
+                }}
+              >
                 {/* Column header */}
                 <Box
                   sx={{
                     px: 1.5,
                     py: 1.25,
                     mb: 1.5,
-                    borderRadius: 2,
-                    bgcolor: col.bg,
+                    borderRadius: 2.5,
+                    bgcolor: alpha(col.accent, 0.06),
+                    border: `1px solid ${alpha(col.accent, 0.1)}`,
                     display: 'flex',
                     alignItems: 'center',
                     gap: 1,
                   }}
                 >
                   <Box
-                    sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: col.accent, flexShrink: 0 }}
+                    sx={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      bgcolor: col.accent,
+                      flexShrink: 0,
+                      boxShadow: col.key === 'in_progress'
+                        ? '0 0 8px rgba(6, 182, 212, 0.5)'
+                        : col.key === 'done'
+                          ? '0 0 8px rgba(52, 211, 153, 0.4)'
+                          : 'none',
+                    }}
                   />
                   <Typography sx={{ fontWeight: 700, fontSize: 13, color: col.accent }}>
                     {col.label}
@@ -143,16 +165,23 @@ export const ProjectTasksPage: React.FC = () => {
                   <Box
                     sx={{
                       ml: 'auto',
-                      minWidth: 20,
-                      height: 20,
-                      borderRadius: 1,
-                      bgcolor: col.accent,
+                      minWidth: 22,
+                      height: 22,
+                      borderRadius: 1.5,
+                      bgcolor: alpha(col.accent, 0.15),
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
                   >
-                    <Typography sx={{ fontSize: 11, fontWeight: 700, color: 'white' }}>
+                    <Typography
+                      sx={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: col.accent,
+                        fontFamily: '"JetBrains Mono", monospace',
+                      }}
+                    >
                       {grouped[col.key].length}
                     </Typography>
                   </Box>
@@ -160,25 +189,25 @@ export const ProjectTasksPage: React.FC = () => {
 
                 {/* Task cards */}
                 <Stack spacing={1.5}>
-                  {grouped[col.key].map((task) => (
+                  {grouped[col.key].map((task, taskIdx) => (
                     <Paper
                       key={task.id}
                       elevation={0}
                       onClick={() => setSelectedTaskId(task.id)}
                       sx={{
                         p: 2,
-                        border: '1px solid rgba(15,23,42,0.07)',
                         borderRadius: 2.5,
                         cursor: 'pointer',
-                        transition: 'all 0.15s ease',
+                        transition: 'all 0.2s ease',
+                        animation: `fadeInUp 0.3s ease ${(colIdx * 0.06) + (taskIdx * 0.04) + 0.1}s both`,
                         '&:hover': {
-                          borderColor: alpha(col.accent, 0.4),
-                          boxShadow: `0 4px 16px ${alpha(col.accent, 0.12)}`,
-                          transform: 'translateY(-1px)',
+                          borderColor: alpha(col.accent, 0.3),
+                          boxShadow: `0 4px 20px ${alpha(col.accent, 0.12)}`,
+                          transform: 'translateY(-2px)',
                         },
                       }}
                     >
-                      {/* Priority dot */}
+                      {/* Priority dot + title */}
                       <Box display="flex" alignItems="flex-start" gap={1} mb={1}>
                         <Box
                           sx={{
@@ -186,12 +215,15 @@ export const ProjectTasksPage: React.FC = () => {
                             height: 6,
                             borderRadius: '50%',
                             mt: 0.75,
-                            bgcolor: PRIORITY_DOT_COLORS[task.priority] ?? '#94A3B8',
+                            bgcolor: PRIORITY_DOT_COLORS[task.priority] ?? '#64748B',
                             flexShrink: 0,
+                            boxShadow: task.priority === 'urgent'
+                              ? '0 0 6px rgba(248, 113, 113, 0.5)'
+                              : 'none',
                           }}
                         />
                         <Typography
-                          sx={{ fontWeight: 600, fontSize: 13, color: '#0F172A', lineHeight: 1.4 }}
+                          sx={{ fontWeight: 600, fontSize: 13, color: 'var(--text-heading)', lineHeight: 1.4 }}
                         >
                           {task.title}
                         </Typography>
@@ -203,13 +235,13 @@ export const ProjectTasksPage: React.FC = () => {
                           sx={{
                             mb: 1,
                             pl: 2,
-                            borderLeft: `2px solid rgba(15,23,42,0.08)`,
+                            borderLeft: '2px solid var(--border-subtle)',
                           }}
                         >
                           {(subtaskMap[task.id] ?? []).map((sub) => (
                             <Typography
                               key={sub.id}
-                              sx={{ fontSize: 11, color: '#94A3B8', lineHeight: 1.6 }}
+                              sx={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.6 }}
                             >
                               · {sub.title}
                             </Typography>
@@ -220,7 +252,7 @@ export const ProjectTasksPage: React.FC = () => {
                       {/* Description */}
                       {task.description && (
                         <Typography
-                          sx={{ fontSize: 12, color: '#94A3B8', mb: 1, lineHeight: 1.5 }}
+                          sx={{ fontSize: 12, color: 'var(--text-muted)', mb: 1, lineHeight: 1.5 }}
                           noWrap
                         >
                           {task.description}
@@ -228,7 +260,13 @@ export const ProjectTasksPage: React.FC = () => {
                       )}
 
                       {/* Footer */}
-                      <Box display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={0.5}>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        flexWrap="wrap"
+                        gap={0.5}
+                      >
                         <Chip
                           size="small"
                           label={PRIORITY_LABELS[task.priority]}
@@ -237,8 +275,8 @@ export const ProjectTasksPage: React.FC = () => {
                         />
                         {task.due_date && (
                           <Box display="flex" alignItems="center" gap={0.5}>
-                            <CalendarTodayIcon sx={{ fontSize: 10, color: '#94A3B8' }} />
-                            <Typography sx={{ fontSize: 11, color: '#94A3B8' }}>
+                            <CalendarTodayIcon sx={{ fontSize: 10, color: 'var(--text-muted)' }} />
+                            <Typography sx={{ fontSize: 11, color: 'var(--text-muted)' }}>
                               {task.due_date}
                             </Typography>
                           </Box>
@@ -249,9 +287,9 @@ export const ProjectTasksPage: React.FC = () => {
                       {task.assignee && (
                         <Box
                           sx={{
-                            mt: 1,
-                            pt: 1,
-                            borderTop: '1px solid rgba(15,23,42,0.06)',
+                            mt: 1.25,
+                            pt: 1.25,
+                            borderTop: '1px solid var(--border-faint)',
                             display: 'flex',
                             alignItems: 'center',
                             gap: 0.75,
@@ -259,21 +297,22 @@ export const ProjectTasksPage: React.FC = () => {
                         >
                           <Box
                             sx={{
-                              width: 18,
-                              height: 18,
+                              width: 20,
+                              height: 20,
                               borderRadius: '50%',
-                              bgcolor: alpha('#4F46E5', 0.12),
+                              background: 'var(--avatar-bg)',
+                              border: '1px solid var(--avatar-border)',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
                               fontSize: 9,
                               fontWeight: 700,
-                              color: '#4F46E5',
+                              color: 'var(--accent-primary)',
                             }}
                           >
                             {(task.assignee.display_name || task.assignee.username)[0]?.toUpperCase()}
                           </Box>
-                          <Typography sx={{ fontSize: 11, color: '#64748B' }}>
+                          <Typography sx={{ fontSize: 11, color: 'var(--text-secondary)' }}>
                             {task.assignee.display_name || task.assignee.username}
                           </Typography>
                         </Box>
@@ -289,11 +328,11 @@ export const ProjectTasksPage: React.FC = () => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        borderRadius: 2,
-                        border: '1px dashed rgba(15,23,42,0.1)',
+                        borderRadius: 2.5,
+                        border: '1px dashed rgba(148, 163, 184, 0.1)',
                       }}
                     >
-                      <Typography sx={{ fontSize: 12, color: '#CBD5E1' }}>タスクなし</Typography>
+                      <Typography sx={{ fontSize: 12, color: 'var(--text-faint)' }}>タスクなし</Typography>
                     </Box>
                   )}
                 </Stack>
@@ -323,8 +362,6 @@ export const ProjectTasksPage: React.FC = () => {
               position: 'fixed',
               bottom: 24,
               right: 24,
-              background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-              boxShadow: '0 8px 20px rgba(79,70,229,0.4)',
             }}
             onClick={() => setOpenCreate(true)}
           >

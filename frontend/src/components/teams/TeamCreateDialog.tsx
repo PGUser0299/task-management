@@ -60,7 +60,6 @@ export const TeamCreateDialog: React.FC<Props> = ({ open, onClose, onCreated }) 
       onClose={handleClose}
       fullWidth
       maxWidth="xs"
-      PaperProps={{ sx: { borderRadius: 3, boxShadow: '0 25px 50px rgba(15,23,42,0.2)' } }}
     >
       <DialogTitle
         sx={{
@@ -69,13 +68,13 @@ export const TeamCreateDialog: React.FC<Props> = ({ open, onClose, onCreated }) 
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '1px solid rgba(15,23,42,0.07)',
+          borderBottom: '1px solid var(--border-subtle)',
         }}
       >
-        <Typography sx={{ fontWeight: 700, fontSize: 16, color: '#0F172A' }}>
+        <Typography sx={{ fontWeight: 700, fontSize: 16, color: 'var(--text-primary)' }}>
           新規チームを作成
         </Typography>
-        <IconButton size="small" onClick={handleClose} sx={{ color: '#94A3B8' }}>
+        <IconButton size="small" onClick={handleClose} sx={{ color: 'var(--text-secondary)' }}>
           <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>
@@ -84,7 +83,7 @@ export const TeamCreateDialog: React.FC<Props> = ({ open, onClose, onCreated }) 
         <Box component="form" onSubmit={handleSubmit}>
           <Stack spacing={2}>
             <Box>
-              <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#374151', mb: 0.75 }}>
+              <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', mb: 0.75 }}>
                 チーム名 <Box component="span" sx={{ color: 'error.main' }}>*</Box>
               </Typography>
               <TextField
@@ -120,7 +119,7 @@ export const TeamCreateDialog: React.FC<Props> = ({ open, onClose, onCreated }) 
           <Stack direction="row" spacing={1.5} justifyContent="flex-end" sx={{ mt: 3 }}>
             <Button
               onClick={handleClose}
-              sx={{ color: '#64748B', '&:hover': { bgcolor: 'rgba(100,116,139,0.08)' } }}
+              sx={{ color: 'var(--text-muted)', '&:hover': { bgcolor: 'rgba(100,116,139,0.08)' } }}
             >
               キャンセル
             </Button>
@@ -128,11 +127,7 @@ export const TeamCreateDialog: React.FC<Props> = ({ open, onClose, onCreated }) 
               type="submit"
               variant="contained"
               disabled={createTeam.isPending || !name.trim()}
-              sx={{
-                background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                boxShadow: '0 2px 8px rgba(79,70,229,0.35)',
-                px: 3,
-              }}
+              sx={{ px: 3 }}
             >
               {createTeam.isPending ? '作成中...' : 'チームを作成'}
             </Button>
